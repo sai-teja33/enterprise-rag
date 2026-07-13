@@ -1,0 +1,153 @@
+<section class="query-page">
+  <div class="page-header">
+    <div>
+      <h1>Query Playground</h1>
+      <p>Ask grounded questions against the selected tenant workspace.</p>
+    </div>
+  </div>
+
+  <div class="query-grid">
+    <div class="primary-column">
+      <mat-card class="panel-card">
+        <div class="card-header">
+          <h2>Ask a question</h2>
+          <div class="tenant-pill">Tenant: {{ tenantState.selectedTenant().slug }}</div>
+        </div>
+
+        <div class="sample-questions">
+          @for (sample of sampleQuestions; track sample) {
+            <button mat-stroked-button (click)="selectSample(sample)">{{ sample }}</button>
+          }
+        </div>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Question</mat-label>
+          <textarea matInput rows="5" [(ngModel)]="question"></textarea>
+        </mat-form-field>
+
+        <div class="controls-row">
+          <mat-form-field appearance="outline">
+            <mat-label>Top K</mat-label>
+            <mat-select [(ngModel)]="topK">
+              <mat-option [value]="3">3</mat-option>
+              <mat-option [value]="5">5</mat-option>
+              <mat-option [value]="8">8</mat-option>
+              <mat-option [value]="10">10</mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <button mat-flat-button color="primary" [disabled]="isLoading" (click)="askQuestion()">
+            {{ isLoading ? 'Asking…' : 'Ask' }}
+          </button>
+        </div>
+      </mat-card>
+
+      @if (isLoading) {
+        <app-loading-state message="Checking retrieval and answer generation…"></app-loading-state>
+      } @else if (response) {
+        <mat-card class="panel-card answer-card">
+          <div class="card-header">
+            <h2>Answer</h2>
+            @if (response.answer_mode) {
+              <app-status-badge
+                [label]="response.answer_mode"
+                [variant]="answerBadgeVariant"
+              ></app-status-badge>
+            }
+          </div>
+          <p class="answer-text">{{ response.answer }}</p>
+          <div class="reasoning-notes">
+            <div>
+              <strong>Multiple cases:</strong>
+              {{ response.reasoning_notes?.has_multiple_cases ? 'Yes' : 'No' }}
+            </div>
+            <div>
+              <strong>Partial support:</strong>
+              {{ response.reasoning_notes?.has_partial_support ? 'Yes' : 'No' }}
+            </div>
+          </div>
+        </mat-card>
+
+        @if (response.used_citations?.length) {
+          <mat-card class="panel-card">
+            <div class="card-header">
+              <h2>Citations</h2>
+            </div>
+            <div class="citation-list">
+              @for (citation of response.used_citations; track citation.chunk_number) {
+                <app-citation-card [citation]="citation"></app-citation-card>
+              }
+            </div>
+          </mat-card>
+        }
+      }
+    </div>
+
+    <div class="secondary-column">
+      <mat-card class="panel-card">
+        <div class="card-header">
+          <h2>Retrieval Summary</h2>
+        </div>
+        @if (retrievalDebug) {
+          <div class="summary-grid">
+            <div class="summary-item">
+              <span>Top vector score</span
+              ><strong>{{ retrievalDebug.top_vector_score ?? '—' }}</strong>
+            </div>
+            <div class="summary-item">
+              <span>Top rerank score</span
+              ><strong>{{ retrievalDebug.top_rerank_score ?? '—' }}</strong>
+            </div>
+            <div class="summary-item">
+              <span>Num chunks</span><strong>{{ retrievalDebug.num_chunks ?? 0 }}</strong>
+            </div>
+            <div class="summary-item">
+              <span>Coverage ratio</span><strong>{{ lexicalOverlap?.coverage_ratio ?? 0 }}</strong>
+            </div>
+          </div>
+          @if (lexicalOverlap) {
+            <div class="summary-grid secondary">
+              <div class="summary-item">
+                <span>Question tokens</span
+                ><strong>{{ lexicalOverlap.question_tokens?.join(', ') || '—' }}</strong>
+              </div>
+              <div class="summary-item">
+                <span>Matched tokens</span
+                ><strong>{{ lexicalOverlap.matched_tokens?.join(', ') || '—' }}</strong>
+              </div>
+            </div>
+          }
+        } @else {
+          <p class="muted">Run a query to inspect retrieval diagnostics.</p>
+        }
+      </mat-card>
+
+      <mat-card class="panel-card">
+        <div class="card-header">
+          <h2>Retrieved Chunks</h2>
+        </div>
+        @if (retrievedChunks.length) {
+          <div class="chunk-list">
+            @for (chunk of retrievedChunks; track chunk.chunk_id) {
+              <app-chunk-debug-card [chunk]="chunk"></app-chunk-debug-card>
+            }
+          </div>
+        } @else {
+          <p class="muted">Retrieved chunks will appear here once you run a query.</p>
+        }
+      </mat-card>
+
+      @if (debugInfo?.rescue_used != null) {
+        <mat-card class="panel-card">
+          <div class="card-header">
+            <h2>Rescue Info</h2>
+          </div>
+          <app-status-badge
+            [label]="debugInfo?.rescue_used ? 'Rescue used: Yes' : 'Rescue used: No'"
+            [variant]="rescueBadgeVariant"
+          ></app-status-badge>
+        </mat-card>
+      }
+    </div>
+  </div>
+</section>

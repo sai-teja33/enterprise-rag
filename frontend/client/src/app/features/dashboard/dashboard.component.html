@@ -1,0 +1,126 @@
+<section class="dashboard-page">
+  <div class="page-header">
+    <div>
+      <h1>Tenant Dashboard</h1>
+      <p>Operational view for {{ tenantState.selectedTenant().label }}.</p>
+    </div>
+    <div class="page-actions" aria-label="Dashboard actions">
+      <button
+        type="button"
+        mat-stroked-button
+        class="page-action page-action--secondary"
+        (click)="loadStatus()"
+        aria-label="Refresh dashboard data"
+      >
+        <mat-icon aria-hidden="true">refresh</mat-icon>
+        <span>Refresh</span>
+      </button>
+      <a
+        mat-flat-button
+        color="primary"
+        class="page-action page-action--primary"
+        routerLink="/documents"
+        aria-label="Manage documents"
+      >
+        <mat-icon aria-hidden="true">folder_open</mat-icon>
+        <span>Manage Documents</span>
+      </a>
+    </div>
+  </div>
+
+  @if (isLoading) {
+    <app-loading-state message="Loading tenant knowledge status…"></app-loading-state>
+  } @else if (!statusResponse) {
+    <app-empty-state
+      title="No data available"
+      description="The tenant status endpoint returned no data."
+    ></app-empty-state>
+  } @else {
+    <div class="stats-grid">
+      <app-stat-card
+        label="Total Documents"
+        [value]="statusResponse.total_documents"
+      ></app-stat-card>
+      <app-stat-card label="Ready Documents" [value]="readyDocumentsCount"></app-stat-card>
+      <app-stat-card label="Total Chunks" [value]="totalChunks"></app-stat-card>
+      <app-stat-card label="Embedded Chunks" [value]="embeddedChunks"></app-stat-card>
+    </div>
+
+    <mat-card class="panel-card">
+      <div class="panel-heading">
+        <div>
+          <h2>Document Readiness</h2>
+          <p>Current ingestion and embedding health for the selected tenant.</p>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table mat-table [dataSource]="statusResponse.documents" class="docs-table">
+          <ng-container matColumnDef="title">
+            <th mat-header-cell *matHeaderCellDef>Title</th>
+            <td mat-cell *matCellDef="let doc">{{ doc.title }}</td>
+          </ng-container>
+          <ng-container matColumnDef="doc_type">
+            <th mat-header-cell *matHeaderCellDef>Doc Type</th>
+            <td mat-cell *matCellDef="let doc">{{ doc.doc_type }}</td>
+          </ng-container>
+          <ng-container matColumnDef="file_name">
+            <th mat-header-cell *matHeaderCellDef>File Name</th>
+            <td mat-cell *matCellDef="let doc">{{ doc.file_name }}</td>
+          </ng-container>
+          <ng-container matColumnDef="uploaded_at">
+            <th mat-header-cell *matHeaderCellDef>Uploaded At</th>
+            <td mat-cell *matCellDef="let doc">{{ doc.uploaded_at | date: 'medium' }}</td>
+          </ng-container>
+          <ng-container matColumnDef="total_chunks">
+            <th mat-header-cell *matHeaderCellDef>Total Chunks</th>
+            <td mat-cell *matCellDef="let doc">{{ doc.total_chunks }}</td>
+          </ng-container>
+          <ng-container matColumnDef="embedded_chunks">
+            <th mat-header-cell *matHeaderCellDef>Embedded Chunks</th>
+            <td mat-cell *matCellDef="let doc">{{ doc.embedded_chunks }}</td>
+          </ng-container>
+          <ng-container matColumnDef="ready">
+            <th mat-header-cell *matHeaderCellDef>Ready Status</th>
+            <td mat-cell *matCellDef="let doc">
+              @if (doc.ready_for_query) {
+                <app-status-badge label="Ready" variant="ready"></app-status-badge>
+              } @else if (doc.total_chunks > 0) {
+                <app-status-badge label="Pending" variant="pending"></app-status-badge>
+              } @else {
+                <app-status-badge label="Not processed" variant="not-processed"></app-status-badge>
+              }
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+        </table>
+      </div>
+    </mat-card>
+
+    <div class="actions-grid">
+      <mat-card class="panel-card action-card">
+        <h3>Quick Actions</h3>
+        <div class="button-stack">
+          <a
+            mat-flat-button
+            color="primary"
+            class="page-action page-action--primary action-card__button"
+            routerLink="/documents"
+            aria-label="Go to documents"
+          >
+            <span>Go to Documents</span>
+          </a>
+          <a
+            mat-stroked-button
+            class="page-action page-action--secondary action-card__button"
+            routerLink="/query"
+            aria-label="Open query playground"
+          >
+            <span>Go to Query Playground</span>
+          </a>
+        </div>
+      </mat-card>
+    </div>
+  }
+</section>

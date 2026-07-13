@@ -1,0 +1,77 @@
+<section class="evaluation-page">
+  <div class="page-header">
+    <div>
+      <h1>Evaluation</h1>
+      <p>Scaffolded view for future evaluation summaries and case review.</p>
+    </div>
+  </div>
+
+  <div class="stats-grid">
+    <app-stat-card
+      label="Overall Pass Rate"
+      [value]="summary?.overallPassRate + '%'"
+      [hint]="'Aggregated benchmark result'"
+    ></app-stat-card>
+    <app-stat-card
+      label="Answerability Pass Rate"
+      [value]="summary?.answerabilityPassRate + '%'"
+      [hint]="'Grounded answer quality'"
+    ></app-stat-card>
+    <app-stat-card
+      label="Doc Type Pass Rate"
+      [value]="summary?.docTypePassRate + '%'"
+      [hint]="'Coverage by document type'"
+    ></app-stat-card>
+    <app-stat-card
+      label="Keyword Pass Rate"
+      [value]="summary?.keywordPassRate + '%'"
+      [hint]="'Keyword precision'"
+    ></app-stat-card>
+    <app-stat-card
+      label="Tenant Isolation Pass Rate"
+      [value]="summary?.tenantIsolationPassRate + '%'"
+      [hint]="'Cross-tenant safety'"
+    ></app-stat-card>
+  </div>
+
+  <div class="content-grid">
+    <mat-card class="panel-card">
+      <h2>Summary Table</h2>
+      <div class="table-wrap">
+        <table mat-table [dataSource]="summary?.summaryRows ?? []" class="summary-table">
+          <ng-container matColumnDef="tenant">
+            <th mat-header-cell *matHeaderCellDef>Tenant</th>
+            <td mat-cell *matCellDef="let row">{{ row.tenant }}</td>
+          </ng-container>
+          <ng-container matColumnDef="avgLatencyMs">
+            <th mat-header-cell *matHeaderCellDef>Avg Latency (ms)</th>
+            <td mat-cell *matCellDef="let row">{{ row.avgLatencyMs }}</td>
+          </ng-container>
+          <ng-container matColumnDef="successRate">
+            <th mat-header-cell *matHeaderCellDef>Success Rate</th>
+            <td mat-cell *matCellDef="let row">{{ row.successRate }}%</td>
+          </ng-container>
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+        </table>
+      </div>
+    </mat-card>
+
+    <mat-card class="panel-card">
+      <h2>Failed Cases</h2>
+      @if (summary?.failedCases?.length) {
+        <div class="failed-list">
+          @for (caseItem of summary.failedCases; track caseItem.id) {
+            <div class="failed-item">
+              <strong>{{ caseItem.id }}</strong>
+              <span>{{ caseItem.question }}</span>
+              <em>{{ caseItem.status }}</em>
+            </div>
+          }
+        </div>
+      } @else {
+        <p class="muted">Evaluation JSON can be plugged in here.</p>
+      }
+    </mat-card>
+  </div>
+</section>

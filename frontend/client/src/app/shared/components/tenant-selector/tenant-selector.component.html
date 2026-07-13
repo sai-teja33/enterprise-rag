@@ -1,0 +1,32 @@
+<div class="tenant-selector">
+  <button
+    type="button"
+    class="tenant-toggle"
+    (click)="toggleTenantList()"
+    [attr.aria-expanded]="isOpen"
+    aria-controls="tenant-list"
+  >
+    <span class="tenant-toggle__content">
+      <span class="tenant-toggle__label">Tenant</span>
+      <span class="tenant-toggle__value">{{ tenantState.selectedTenant().label }}</span>
+    </span>
+  </button>
+
+  @if (isOpen) {
+    <div id="tenant-list" class="tenant-list" role="listbox">
+      @for (tenant of tenantState.tenants; track tenant.slug) {
+        <button
+          type="button"
+          class="tenant-option"
+          [class.is-active]="tenant.slug === tenantState.selectedTenant().slug"
+          (click)="selectTenant(tenant.slug)"
+          role="option"
+          [attr.aria-selected]="tenant.slug === tenantState.selectedTenant().slug"
+        >
+          <span class="tenant-option__label">{{ tenant.label }}</span>
+          @if (tenant.slug === tenantState.selectedTenant().slug) {}
+        </button>
+      }
+    </div>
+  }
+</div>

@@ -1,0 +1,44 @@
+<div class="app-shell">
+  <mat-sidenav-container class="shell-container">
+    <mat-sidenav mode="side" opened class="sidebar">
+      <div class="brand-block">
+        <div class="brand-icon">ER</div>
+        <div>
+          <div class="brand-title">Enterprise RAG</div>
+          <div class="brand-subtitle">Knowledge Console</div>
+        </div>
+      </div>
+
+      <div class="sidebar-tenant-selector">
+        <app-tenant-selector></app-tenant-selector>
+      </div>
+
+      <mat-nav-list>
+        @for (item of navItems; track item.route) {
+          <a mat-list-item [routerLink]="item.route" routerLinkActive="active-link">
+            <mat-icon matListItemIcon>{{ item.icon }}</mat-icon>
+            <span matListItemTitle>{{ item.label }}</span>
+          </a>
+        }
+      </mat-nav-list>
+    </mat-sidenav>
+
+    <mat-sidenav-content>
+      <mat-toolbar class="topbar">
+        <div class="topbar-title">
+          <button mat-icon-button class="mobile-nav" aria-label="Toggle menu">
+            <mat-icon>menu</mat-icon>
+          </button>
+          <div>
+            <div class="eyebrow">Tenant Workspace</div>
+            <div class="page-title">{{ tenantState.selectedTenant().label }}</div>
+          </div>
+        </div>
+      </mat-toolbar>
+
+      <main class="content-area">
+        <router-outlet></router-outlet>
+      </main>
+    </mat-sidenav-content>
+  </mat-sidenav-container>
+</div>

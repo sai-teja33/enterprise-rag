@@ -1,0 +1,308 @@
+[
+  {
+    "id": "acme_01",
+    "tenant_id": "acme-tech",
+    "question": "How many sick leaves are allowed?",
+    "answerable": true,
+    "expected_doc_types": [
+      "leave_policy",
+      "attendance_policy",
+      "employee_handbook"
+    ],
+    "expected_keywords": ["sick", "leave"]
+  },
+  {
+    "id": "acme_02",
+    "tenant_id": "acme-tech",
+    "question": "How many earned leaves are allowed?",
+    "answerable": true,
+    "expected_doc_types": [
+      "leave_policy",
+      "attendance_policy",
+      "employee_handbook"
+    ],
+    "expected_keywords": ["earned", "leave"]
+  },
+  {
+    "id": "acme_03",
+    "tenant_id": "acme-tech",
+    "question": "Does the health insurance policy cover parents?",
+    "answerable": true,
+    "expected_doc_types": ["insurance_policy", "employee_handbook"],
+    "expected_keywords": ["parents", "insurance"]
+  },
+  {
+    "id": "acme_04",
+    "tenant_id": "acme-tech",
+    "question": "What expenses can be claimed under travel reimbursement?",
+    "answerable": true,
+    "expected_doc_types": ["travel_policy"],
+    "expected_keywords": ["travel", "reimbursement"]
+  },
+  {
+    "id": "acme_05",
+    "tenant_id": "acme-tech",
+    "question": "What is the work from home policy?",
+    "answerable": true,
+    "expected_doc_types": ["work_policy", "employee_handbook"],
+    "expected_keywords": ["work", "home"]
+  },
+  {
+    "id": "acme_06",
+    "tenant_id": "acme-tech",
+    "question": "What is the notice period mentioned in the probation or notice policy?",
+    "answerable": true,
+    "expected_doc_types": ["notice_policy", "employee_handbook"],
+    "expected_keywords": ["notice", "probation"]
+  },
+  {
+    "id": "acme_07",
+    "tenant_id": "acme-tech",
+    "question": "What does the code of conduct say about employee behavior?",
+    "answerable": true,
+    "expected_doc_types": ["conduct_policy", "employee_handbook"],
+    "expected_keywords": ["conduct"]
+  },
+  {
+    "id": "acme_08",
+    "tenant_id": "acme-tech",
+    "question": "How does the performance review process work?",
+    "answerable": true,
+    "expected_doc_types": ["performance_policy", "employee_handbook"],
+    "expected_keywords": ["performance", "review"]
+  },
+  {
+    "id": "acme_09",
+    "tenant_id": "acme-tech",
+    "question": "How is attendance handled in the leave and attendance policy?",
+    "answerable": true,
+    "expected_doc_types": [
+      "attendance_policy",
+      "leave_policy",
+      "employee_handbook"
+    ],
+    "expected_keywords": ["attendance"]
+  },
+  {
+    "id": "acme_10",
+    "tenant_id": "acme-tech",
+    "question": "Can employees claim hotel expenses during business travel?",
+    "answerable": true,
+    "expected_doc_types": ["travel_policy"],
+    "expected_keywords": ["hotel", "travel"]
+  },
+  {
+    "id": "acme_11",
+    "tenant_id": "acme-tech",
+    "question": "Does the company provide stock options to interns?",
+    "answerable": false,
+    "expected_doc_types": [],
+    "expected_keywords": []
+  },
+  {
+    "id": "acme_12",
+    "tenant_id": "acme-tech",
+    "question": "What is the company cafeteria menu policy?",
+    "answerable": false,
+    "expected_doc_types": [],
+    "expected_keywords": []
+  },
+
+  {
+    "id": "zenith_01",
+    "tenant_id": "zenith-retail",
+    "question": "How many leaves are available for store staff?",
+    "answerable": true,
+    "expected_doc_types": ["leave_policy", "employee_handbook"],
+    "expected_keywords": ["leave"]
+  },
+  {
+    "id": "zenith_02",
+    "tenant_id": "zenith-retail",
+    "question": "What does the shift attendance policy say about attendance and shifts?",
+    "answerable": true,
+    "expected_doc_types": ["attendance_policy"],
+    "expected_keywords": ["shift", "attendance"]
+  },
+  {
+    "id": "zenith_03",
+    "tenant_id": "zenith-retail",
+    "question": "What medical insurance benefits are provided to employees?",
+    "answerable": true,
+    "expected_doc_types": ["insurance_policy"],
+    "expected_keywords": ["insurance", "medical"]
+  },
+  {
+    "id": "zenith_04",
+    "tenant_id": "zenith-retail",
+    "question": "What are the employee conduct or uniform rules?",
+    "answerable": true,
+    "expected_doc_types": ["conduct_policy"],
+    "expected_keywords": ["conduct", "uniform"]
+  },
+  {
+    "id": "zenith_05",
+    "tenant_id": "zenith-retail",
+    "question": "How does overtime or holiday compensation work?",
+    "answerable": true,
+    "expected_doc_types": [
+      "benefits_policy",
+      "payroll_policy",
+      "employee_handbook"
+    ],
+    "expected_keywords": ["overtime", "holiday"]
+  },
+  {
+    "id": "zenith_06",
+    "tenant_id": "zenith-retail",
+    "question": "What expenses are covered in the travel policy for field staff?",
+    "answerable": true,
+    "expected_doc_types": ["travel_policy"],
+    "expected_keywords": ["travel", "field"]
+  },
+  {
+    "id": "zenith_07",
+    "tenant_id": "zenith-retail",
+    "question": "What is the grievance or POSH complaint process?",
+    "answerable": true,
+    "expected_doc_types": ["grievance_policy"],
+    "expected_keywords": ["grievance", "posh"]
+  },
+  {
+    "id": "zenith_08",
+    "tenant_id": "zenith-retail",
+    "question": "What payroll deductions are explained in the payroll FAQ?",
+    "answerable": true,
+    "expected_doc_types": ["payroll_policy"],
+    "expected_keywords": ["payroll", "deduction"]
+  },
+  {
+    "id": "zenith_09",
+    "tenant_id": "zenith-retail",
+    "question": "Are store staff eligible for holiday compensation?",
+    "answerable": true,
+    "expected_doc_types": ["benefits_policy", "payroll_policy"],
+    "expected_keywords": ["holiday", "compensation"]
+  },
+  {
+    "id": "zenith_10",
+    "tenant_id": "zenith-retail",
+    "question": "Does the insurance policy mention dependent coverage?",
+    "answerable": true,
+    "expected_doc_types": ["insurance_policy"],
+    "expected_keywords": ["insurance", "dependent"]
+  },
+  {
+    "id": "zenith_11",
+    "tenant_id": "zenith-retail",
+    "question": "What is the employee laptop replacement policy?",
+    "answerable": false,
+    "expected_doc_types": [],
+    "expected_keywords": []
+  },
+  {
+    "id": "zenith_12",
+    "tenant_id": "zenith-retail",
+    "question": "Does the company provide free parking reimbursement for all employees?",
+    "answerable": false,
+    "expected_doc_types": [],
+    "expected_keywords": []
+  },
+
+  {
+    "id": "nova_01",
+    "tenant_id": "nova-finance",
+    "question": "How many leaves are allowed under the leave policy?",
+    "answerable": true,
+    "expected_doc_types": ["leave_policy", "employee_handbook"],
+    "expected_keywords": ["leave"]
+  },
+  {
+    "id": "nova_02",
+    "tenant_id": "nova-finance",
+    "question": "What medical coverage is available under the group medical insurance policy?",
+    "answerable": true,
+    "expected_doc_types": ["insurance_policy"],
+    "expected_keywords": ["medical", "insurance"]
+  },
+  {
+    "id": "nova_03",
+    "tenant_id": "nova-finance",
+    "question": "What hotel or travel reimbursement rules are mentioned for business travel?",
+    "answerable": true,
+    "expected_doc_types": ["travel_policy"],
+    "expected_keywords": ["hotel", "travel"]
+  },
+  {
+    "id": "nova_04",
+    "tenant_id": "nova-finance",
+    "question": "What is the hybrid work policy for employees?",
+    "answerable": true,
+    "expected_doc_types": ["work_policy"],
+    "expected_keywords": ["hybrid", "work"]
+  },
+  {
+    "id": "nova_05",
+    "tenant_id": "nova-finance",
+    "question": "What does the information security or data handling policy require?",
+    "answerable": true,
+    "expected_doc_types": ["security_policy"],
+    "expected_keywords": ["security", "data"]
+  },
+  {
+    "id": "nova_06",
+    "tenant_id": "nova-finance",
+    "question": "What is the employee separation or notice period policy?",
+    "answerable": true,
+    "expected_doc_types": ["notice_policy"],
+    "expected_keywords": ["separation", "notice"]
+  },
+  {
+    "id": "nova_07",
+    "tenant_id": "nova-finance",
+    "question": "What wellness or employee benefits are available?",
+    "answerable": true,
+    "expected_doc_types": ["benefits_policy"],
+    "expected_keywords": ["benefits", "wellness"]
+  },
+  {
+    "id": "nova_08",
+    "tenant_id": "nova-finance",
+    "question": "What does the corporate HR handbook say about employee policies?",
+    "answerable": true,
+    "expected_doc_types": ["employee_handbook"],
+    "expected_keywords": ["employee", "policy"]
+  },
+  {
+    "id": "nova_09",
+    "tenant_id": "nova-finance",
+    "question": "Does the medical insurance policy mention parents or dependents?",
+    "answerable": true,
+    "expected_doc_types": ["insurance_policy"],
+    "expected_keywords": ["insurance", "parents"]
+  },
+  {
+    "id": "nova_10",
+    "tenant_id": "nova-finance",
+    "question": "Can employees claim hotel stays for official travel?",
+    "answerable": true,
+    "expected_doc_types": ["travel_policy"],
+    "expected_keywords": ["hotel", "travel"]
+  },
+  {
+    "id": "nova_11",
+    "tenant_id": "nova-finance",
+    "question": "What is the office cab transport policy?",
+    "answerable": false,
+    "expected_doc_types": [],
+    "expected_keywords": []
+  },
+  {
+    "id": "nova_12",
+    "tenant_id": "nova-finance",
+    "question": "Does the company provide a meal coupon benefit?",
+    "answerable": false,
+    "expected_doc_types": [],
+    "expected_keywords": []
+  }
+]
