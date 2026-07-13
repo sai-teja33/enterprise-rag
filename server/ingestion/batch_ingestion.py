@@ -47,9 +47,12 @@ def bulk_ingest_tenant_folder(
     tenant_id = str(tenant["_id"])
 
     if folder_path:
-        folder = Path(folder_path)
+       folder = Path(folder_path)
     else:
-        folder = Path("data/raw") / tenant_slug
+    # Enterprise-RAG/server/ingestion/batch_ingestion.py
+    # parents[2] = Enterprise-RAG/
+      project_root = Path(__file__).resolve().parents[2]
+      folder = project_root / "data" / "raw" / tenant_slug
 
     if not folder.exists() or not folder.is_dir():
         raise ValueError(f"Tenant folder not found: {folder}")
