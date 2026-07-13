@@ -1,5 +1,5 @@
-from app.db.mongo import chunks_collection
-from app.ingestion.embeddings.embedder import embedder
+from db.mongo import chunks_collection
+from ingestion.embeddings.embedder import embedder
 
 VECTOR_INDEX_NAME = "chunk_vector_index"
 

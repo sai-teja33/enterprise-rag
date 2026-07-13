@@ -1,4 +1,4 @@
-from app.chunking.strategies import (
+from chunking.strategies import (
     recursive_chunk_text,
     section_recursive_chunk_docs,
     page_section_recursive_chunk_docs

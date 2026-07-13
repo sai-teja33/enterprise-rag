@@ -1,4 +1,4 @@
-from app.db.mongo import chunks_collection
+from db.mongo import chunks_collection
 
 TEXT_INDEX_NAME = "chunk_text_index"
 

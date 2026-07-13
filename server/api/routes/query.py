@@ -1,10 +1,10 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
 
-from app.db.mongo import tenants_collection
-from app.retrieval.hybrid_retriever import retrieve_hybrid_chunks
-from app.retrieval.relevance_guard import lexical_overlap_score
-from app.llm.answer_generator import generate_grounded_answer
+from db.mongo import tenants_collection
+from retrieval.hybrid_retriever import retrieve_hybrid_chunks
+from retrieval.relevance_guard import lexical_overlap_score
+from llm.answer_generator import generate_grounded_answer
 
 router = APIRouter(prefix="/query", tags=["Query"])
 

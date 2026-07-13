@@ -1,13 +1,13 @@
 from pathlib import Path
 from typing import Optional
 
-from app.db.mongo import tenants_collection
-from app.db.repositories.document_repo import (
+from db.mongo import tenants_collection
+from db.repositories.document_repo import (
     create_document,
     get_document_by_tenant_and_file_name,
     update_document_file_metadata
 )
-from app.ingestion.pipeline import process_document_into_chunks, embed_document_chunks
+from ingestion.pipeline import process_document_into_chunks, embed_document_chunks
 
 
 ALLOWED_EXTENSIONS = {".pdf", ".docx"}

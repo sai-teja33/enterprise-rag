@@ -1,7 +1,7 @@
 import os
 from langchain_core.documents import Document
-from app.ingestion.loaders.pdf_loader import load_pdf
-from app.ingestion.loaders.docx_loader import load_docx
+from ingestion.loaders.pdf_loader import load_pdf
+from ingestion.loaders.docx_loader import load_docx
 
 
 def load_document(file_path: str, base_metadata: dict | None = None) -> list[Document]:

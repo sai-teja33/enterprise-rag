@@ -1,4 +1,4 @@
-from app.db.mongo import chunks_collection
+from db.mongo import chunks_collection
 
 
 def create_chunks(chunk_docs: list[dict]):

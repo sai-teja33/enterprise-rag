@@ -1,6 +1,6 @@
 from datetime import datetime
 from bson import ObjectId
-from app.db.mongo import documents_collection
+from db.mongo import documents_collection
 
 
 def create_document(

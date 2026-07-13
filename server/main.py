@@ -1,11 +1,11 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.core.config import settings
-from app.db.mongo import ping_mongodb
-from app.api.routes.tenants import router as tenants_router
-from app.api.routes.documents import router as documents_router
-from app.api.routes.query import router as query_router
-from app.api.routes.health import router as health_router
+from core.config import settings
+from db.mongo import ping_mongodb
+from api.routes.tenants import router as tenants_router
+from api.routes.documents import router as documents_router
+from api.routes.query import router as query_router
+from api.routes.health import router as health_router
 
 app = FastAPI(title="Enterprise RAG API")
 

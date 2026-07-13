@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException
-from app.models.tenant import TenantCreate, TenantResponse
-from app.db.repositories.tenant_repo import create_tenant, get_all_tenants
+from models.tenant import TenantCreate, TenantResponse
+from db.repositories.tenant_repo import create_tenant, get_all_tenants
 
 router = APIRouter(prefix="/tenants", tags=["Tenants"])
 

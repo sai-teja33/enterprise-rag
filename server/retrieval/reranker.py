@@ -1,5 +1,5 @@
 from sentence_transformers import CrossEncoder
-from app.core.config import settings
+from core.config import settings
 
 
 class ChunkReranker:

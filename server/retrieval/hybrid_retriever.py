@@ -1,6 +1,6 @@
-from app.retrieval.dense_retriever import retrieve_similar_chunks
-from app.retrieval.text_retriever import retrieve_text_chunks
-from app.retrieval.reranker import reranker
+from retrieval.dense_retriever import retrieve_similar_chunks
+from retrieval.text_retriever import retrieve_text_chunks
+from retrieval.reranker import reranker
 
 
 def merge_hybrid_results(

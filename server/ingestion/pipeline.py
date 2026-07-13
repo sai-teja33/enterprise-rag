@@ -1,16 +1,16 @@
-from app.db.repositories.document_repo import (
+from db.repositories.document_repo import (
     get_document_by_id,
     update_document_chunking_info
 )
-from app.db.repositories.chunk_repo import (
+from db.repositories.chunk_repo import (
     create_chunks,
     delete_chunks_by_document,
     get_unembedded_chunks_by_document,
     update_chunk_embedding
 )
-from app.ingestion.loaders.factory import load_document
-from app.ingestion.embeddings.embedder import embedder
-from app.chunking.chunker import chunk_loaded_documents
+from ingestion.loaders.factory import load_document
+from ingestion.embeddings.embedder import embedder
+from chunking.chunker import chunk_loaded_documents
 
 
 def process_document_into_chunks(document_id: str):

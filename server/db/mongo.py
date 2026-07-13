@@ -1,6 +1,6 @@
 from pymongo import MongoClient
 from pymongo.errors import ConnectionFailure
-from app.core.config import settings
+from core.config import settings
 
 client = MongoClient(settings.MONGODB_URI)
 db = client[settings.DB_NAME]

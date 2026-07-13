@@ -1,5 +1,5 @@
 from datetime import datetime
-from app.db.mongo import tenants_collection
+from db.mongo import tenants_collection
 
 
 def create_tenant(name: str, slug: str):

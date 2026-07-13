@@ -1,98 +1,11 @@
-# import json
-# from app.llm.groq_client import groq_client
-# from app.llm.prompts import SYSTEM_PROMPT
 
-# ABSTAIN_ANSWER = "I could not find a reliable answer in the uploaded tenant documents."
-
-
-# def build_context(chunks: list[dict]) -> str:
-#     context_parts = []
-
-#     for idx, chunk in enumerate(chunks, start=1):
-#         context_parts.append(
-#             f"""[Chunk {idx}]
-# Title: {chunk.get("title", "")}
-# Doc Type: {chunk.get("doc_type", "")}
-# File: {chunk.get("file_name", "")}
-# Page: {chunk.get("page_number", "")}
-# Content:
-# {chunk.get("chunk_text", "")}
-# """
-#         )
-
-#     return "\n\n".join(context_parts)
-
-
-# def generate_grounded_answer(question: str, chunks: list[dict]) -> dict:
-#     context = build_context(chunks)
-
-#     user_prompt = f"""
-# Question:
-# {question}
-
-# Context:
-# {context}
-# """
-
-#     response = groq_client.chat.completions.create(
-#         model="llama-3.3-70b-versatile",
-#         messages=[
-#             {"role": "system", "content": SYSTEM_PROMPT},
-#             {"role": "user", "content": user_prompt}
-#         ],
-#         temperature=0
-#     )
-
-#     raw_output = response.choices[0].message.content.strip()
-
-#     try:
-#         parsed = json.loads(raw_output)
-
-#         answer_mode = parsed.get("answer_mode", "").strip()
-#         answer = parsed.get("answer", "").strip()
-#         used_chunk_numbers = parsed.get("used_chunk_numbers", [])
-#         reasoning_notes = parsed.get("reasoning_notes", {})
-
-#         if answer_mode not in {"direct_answer", "scoped_answer", "partial_answer", "not_found"}:
-#             answer_mode = "not_found"
-
-#         if not isinstance(used_chunk_numbers, list):
-#             used_chunk_numbers = []
-
-#         if not isinstance(reasoning_notes, dict):
-#             reasoning_notes = {}
-
-#         if answer_mode == "not_found" or not answer:
-#             answer = ABSTAIN_ANSWER
-#             answer_mode = "not_found"
-
-#         return {
-#             "answer_mode": answer_mode,
-#             "answer": answer,
-#             "used_chunk_numbers": used_chunk_numbers,
-#             "reasoning_notes": reasoning_notes,
-#             "raw_output": raw_output
-#         }
-
-#     except Exception:
-#         # If model output is malformed, fail safely
-#         return {
-#             "answer_mode": "not_found",
-#             "answer": ABSTAIN_ANSWER,
-#             "used_chunk_numbers": [],
-#             "reasoning_notes": {
-#                 "has_multiple_cases": False,
-#                 "has_partial_support": False
-#             },
-#             "raw_output": raw_output
-#         }
 import json
 import re
 from openai import OpenAI
 
-from app.core.config import settings
-from app.llm.prompts import SYSTEM_PROMPT
-from app.llm.groq_client import groq_client
+from core.config import settings
+from llm.prompts import SYSTEM_PROMPT
+from llm.groq_client import groq_client
 
 ABSTAIN_ANSWER = "I could not find a reliable answer in the uploaded tenant documents."
 

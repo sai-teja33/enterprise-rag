@@ -3,23 +3,23 @@ import shutil
 from pathlib import Path
 
 from fastapi import APIRouter, UploadFile, File, Form, HTTPException
-from app.models.document import DocumentResponse
+from models.document import DocumentResponse
 
-from app.db.repositories.document_repo import (
+from db.repositories.document_repo import (
     create_document,
     get_documents_by_tenant,
     get_document_by_id
 )
-from app.db.repositories.chunk_repo import (
+from db.repositories.chunk_repo import (
     get_chunks_by_document,
     count_chunks_by_document,
     count_embedded_chunks_by_document,
     delete_chunks_by_document
 )
-from app.db.mongo import tenants_collection
-from app.ingestion.loaders.factory import load_document
-from app.ingestion.pipeline import process_document_into_chunks,embed_document_chunks
-from app.ingestion.batch_ingestion import bulk_ingest_tenant_folder
+from db.mongo import tenants_collection
+from ingestion.loaders.factory import load_document
+from ingestion.pipeline import process_document_into_chunks,embed_document_chunks
+from ingestion.batch_ingestion import bulk_ingest_tenant_folder
 
 router = APIRouter(prefix="/tenants", tags=["Documents"])
 
