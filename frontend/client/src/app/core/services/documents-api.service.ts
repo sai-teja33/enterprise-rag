@@ -1,49 +1,57 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import {
+  DepartmentDocumentStatusResponse,
   DocumentChunksResponse,
   PreviewDocumentResponse,
   ReprocessDocumentResponse,
-  TenantDocumentStatusResponse,
   UploadDocumentResponse,
 } from '../models/documents';
 
-@Injectable({ providedIn: 'root' })
+@Injectable({
+  providedIn: 'root',
+})
 export class DocumentsApiService {
-  private readonly baseUrl = `${environment.apiBaseUrl}/tenants`;
+  private readonly baseUrl = `${environment.apiBaseUrl}/departments`;
 
   constructor(private readonly http: HttpClient) {}
 
-  getDocumentStatus(tenantSlug: string): Observable<TenantDocumentStatusResponse> {
-    return this.http.get<TenantDocumentStatusResponse>(
-      `${this.baseUrl}/${tenantSlug}/documents/status`,
+  getDocumentStatus(departmentSlug: string): Observable<DepartmentDocumentStatusResponse> {
+    return this.http.get<DepartmentDocumentStatusResponse>(
+      `${this.baseUrl}/${departmentSlug}/documents/status`,
     );
   }
 
-  uploadDocument(tenantSlug: string, payload: FormData): Observable<UploadDocumentResponse> {
+  uploadDocument(departmentSlug: string, payload: FormData): Observable<UploadDocumentResponse> {
     return this.http.post<UploadDocumentResponse>(
-      `${this.baseUrl}/${tenantSlug}/documents/upload`,
+      `${this.baseUrl}/${departmentSlug}/documents/upload`,
       payload,
     );
   }
 
-  previewDocument(tenantSlug: string, documentId: string): Observable<PreviewDocumentResponse> {
+  previewDocument(departmentSlug: string, documentId: string): Observable<PreviewDocumentResponse> {
     return this.http.get<PreviewDocumentResponse>(
-      `${this.baseUrl}/${tenantSlug}/documents/${documentId}/preview`,
+      `${this.baseUrl}/${departmentSlug}/documents/${documentId}/preview`,
     );
   }
 
-  getDocumentChunks(tenantSlug: string, documentId: string): Observable<DocumentChunksResponse> {
+  getDocumentChunks(
+    departmentSlug: string,
+    documentId: string,
+  ): Observable<DocumentChunksResponse> {
     return this.http.get<DocumentChunksResponse>(
-      `${this.baseUrl}/${tenantSlug}/documents/${documentId}/chunks`,
+      `${this.baseUrl}/${departmentSlug}/documents/${documentId}/chunks`,
     );
   }
 
-  reprocessDocument(tenantSlug: string, documentId: string): Observable<ReprocessDocumentResponse> {
+  reprocessDocument(
+    departmentSlug: string,
+    documentId: string,
+  ): Observable<ReprocessDocumentResponse> {
     return this.http.post<ReprocessDocumentResponse>(
-      `${this.baseUrl}/${tenantSlug}/documents/${documentId}/reprocess`,
+      `${this.baseUrl}/${departmentSlug}/documents/${documentId}/reprocess`,
       {},
     );
   }

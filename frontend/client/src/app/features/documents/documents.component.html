@@ -1,40 +1,40 @@
 <section class="documents-page">
   <div class="page-header">
     <div>
-      <h1>Documents</h1>
-      <p>Manage and inspect the selected tenant’s knowledge base.</p>
+      <h1>Department Documents</h1>
+      <p>Manage and inspect the selected department's knowledge base.</p>
     </div>
-    <div class="page-actions" aria-label="Documents actions">
+
+    <div class="page-actions" aria-label="Document actions">
       <button
         type="button"
         mat-stroked-button
         class="page-action page-action--secondary"
         (click)="loadStatus()"
-        aria-label="Refresh document status"
       >
-        <mat-icon aria-hidden="true">refresh</mat-icon>
+        <mat-icon>refresh</mat-icon>
         <span>Refresh Status</span>
       </button>
+
       <button
         type="button"
         mat-flat-button
         color="primary"
         class="page-action page-action--primary"
         (click)="openUploadDialog()"
-        aria-label="Upload a document"
       >
-        <mat-icon aria-hidden="true">upload_file</mat-icon>
+        <mat-icon>upload_file</mat-icon>
         <span>Upload Document</span>
       </button>
     </div>
   </div>
 
   @if (isLoading) {
-    <app-loading-state message="Loading document inventory…"></app-loading-state>
+    <app-loading-state message="Loading department documents..."></app-loading-state>
   } @else if (!statusResponse || !statusResponse.documents.length) {
     <app-empty-state
       title="No documents found"
-      description="Upload a PDF or DOCX to begin building this tenant’s knowledge base."
+      description="Upload PDF or DOCX files to build the selected department knowledge base."
     ></app-empty-state>
   } @else {
     <mat-card class="panel-card">
@@ -42,74 +42,91 @@
         <table mat-table [dataSource]="statusResponse.documents" class="docs-table">
           <ng-container matColumnDef="title">
             <th mat-header-cell *matHeaderCellDef>Title</th>
-            <td mat-cell *matCellDef="let doc">{{ doc.title }}</td>
+            <td mat-cell *matCellDef="let doc">
+              {{ doc.title }}
+            </td>
           </ng-container>
+
           <ng-container matColumnDef="doc_type">
-            <th mat-header-cell *matHeaderCellDef>Doc Type</th>
-            <td mat-cell *matCellDef="let doc">{{ doc.doc_type }}</td>
+            <th mat-header-cell *matHeaderCellDef>Document Type</th>
+            <td mat-cell *matCellDef="let doc">
+              {{ doc.doc_type }}
+            </td>
           </ng-container>
+
           <ng-container matColumnDef="file_name">
             <th mat-header-cell *matHeaderCellDef>File Name</th>
-            <td mat-cell *matCellDef="let doc">{{ doc.file_name }}</td>
+            <td mat-cell *matCellDef="let doc">
+              {{ doc.file_name }}
+            </td>
           </ng-container>
+
           <ng-container matColumnDef="uploaded_at">
-            <th mat-header-cell *matHeaderCellDef>Uploaded At</th>
-            <td mat-cell *matCellDef="let doc">{{ doc.uploaded_at | date: 'medium' }}</td>
+            <th mat-header-cell *matHeaderCellDef>Uploaded</th>
+            <td mat-cell *matCellDef="let doc">
+              {{ doc.uploaded_at | date: 'medium' }}
+            </td>
           </ng-container>
+
           <ng-container matColumnDef="total_chunks">
-            <th mat-header-cell *matHeaderCellDef>Total Chunks</th>
-            <td mat-cell *matCellDef="let doc">{{ doc.total_chunks }}</td>
+            <th mat-header-cell *matHeaderCellDef>Chunks</th>
+            <td mat-cell *matCellDef="let doc">
+              {{ doc.total_chunks }}
+            </td>
           </ng-container>
+
           <ng-container matColumnDef="embedded_chunks">
-            <th mat-header-cell *matHeaderCellDef>Embedded Chunks</th>
-            <td mat-cell *matCellDef="let doc">{{ doc.embedded_chunks }}</td>
+            <th mat-header-cell *matHeaderCellDef>Embedded</th>
+            <td mat-cell *matCellDef="let doc">
+              {{ doc.embedded_chunks }}
+            </td>
           </ng-container>
+
           <ng-container matColumnDef="ready">
-            <th mat-header-cell *matHeaderCellDef>Ready Status</th>
+            <th mat-header-cell *matHeaderCellDef>Status</th>
+
             <td mat-cell *matCellDef="let doc">
               @if (doc.ready_for_query) {
                 <app-status-badge label="Ready" variant="ready"></app-status-badge>
               } @else if (doc.total_chunks > 0) {
                 <app-status-badge label="Pending" variant="pending"></app-status-badge>
               } @else {
-                <app-status-badge label="Not processed" variant="not-processed"></app-status-badge>
+                <app-status-badge label="Not Processed" variant="not-processed"></app-status-badge>
               }
             </td>
           </ng-container>
+
           <ng-container matColumnDef="actions">
             <th mat-header-cell *matHeaderCellDef>Actions</th>
+
             <td mat-cell *matCellDef="let doc">
               <div class="action-buttons">
                 <button
-                  type="button"
                   mat-stroked-button
                   class="table-action table-action--secondary"
                   (click)="openPreview(doc)"
-                  aria-label="Preview document"
                 >
-                  <mat-icon aria-hidden="true">visibility</mat-icon>
-                  <span>Preview</span>
+                  <mat-icon>visibility</mat-icon>
+                  Preview
                 </button>
+
                 <button
-                  type="button"
                   mat-stroked-button
                   class="table-action table-action--secondary"
                   (click)="openChunks(doc)"
-                  aria-label="View document chunks"
                 >
-                  <mat-icon aria-hidden="true">view_list</mat-icon>
-                  <span>View Chunks</span>
+                  <mat-icon>view_list</mat-icon>
+                  Chunks
                 </button>
+
                 <button
-                  type="button"
                   mat-flat-button
                   color="primary"
                   class="table-action table-action--primary"
                   (click)="reprocess(doc)"
-                  aria-label="Reprocess document"
                 >
-                  <mat-icon aria-hidden="true">sync</mat-icon>
-                  <span>Reprocess</span>
+                  <mat-icon>sync</mat-icon>
+                  Reprocess
                 </button>
               </div>
             </td>

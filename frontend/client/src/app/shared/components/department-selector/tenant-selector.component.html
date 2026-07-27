@@ -1,0 +1,36 @@
+<div class="tenant-selector">
+  <button
+    type="button"
+    class="tenant-toggle"
+    (click)="toggleDepartmentList()"
+    [attr.aria-expanded]="isOpen"
+    aria-controls="department-list"
+  >
+    <span class="tenant-toggle__content">
+      <span class="tenant-toggle__label"> Department </span>
+
+      <span class="tenant-toggle__value">
+        {{ departmentState.selectedDepartment().label }}
+      </span>
+    </span>
+  </button>
+
+  @if (isOpen) {
+    <div id="department-list" class="tenant-list" role="listbox">
+      @for (department of departmentState.departments; track department.slug) {
+        <button
+          type="button"
+          class="tenant-option"
+          [class.is-active]="department.slug === departmentState.selectedDepartment().slug"
+          (click)="selectDepartment(department.slug)"
+          role="option"
+          [attr.aria-selected]="department.slug === departmentState.selectedDepartment().slug"
+        >
+          <span class="tenant-option__label">
+            {{ department.label }}
+          </span>
+        </button>
+      }
+    </div>
+  }
+</div>

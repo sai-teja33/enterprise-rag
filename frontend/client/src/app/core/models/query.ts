@@ -1,5 +1,4 @@
 export interface QueryRequest {
-  tenant_id: string;
   question: string;
   top_k?: number;
   debug?: boolean;
@@ -11,10 +10,17 @@ export interface ReasoningNotes {
   [key: string]: unknown;
 }
 
+export interface QueryRouting {
+  department: string;
+  method: string;
+  confidence: number;
+  reason?: string;
+}
+
 export interface QueryCitation {
   chunk_number?: number;
   chunk_id?: string;
-  tenant_id?: string;
+  department?: string;
   document_id?: string;
   title?: string;
   doc_type?: string;
@@ -35,6 +41,7 @@ export interface LexicalOverlap {
 
 export interface RetrievedDebugChunk {
   chunk_id?: string;
+  department?: string;
   document_id?: string;
   title?: string;
   doc_type?: string;
@@ -65,7 +72,8 @@ export interface QueryDebugInfo {
 }
 
 export interface QueryResponse {
-  tenant?: string;
+  department?: string;
+  routing?: QueryRouting;
   question?: string;
   answer_mode?: string;
   answer?: string;

@@ -4,7 +4,7 @@ from datetime import datetime
 
 class DocumentResponse(BaseModel):
     id: str
-    tenant_id: str
+    department_id: str
     title: str
     doc_type: str
     file_name: str

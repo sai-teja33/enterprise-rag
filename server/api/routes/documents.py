@@ -7,7 +7,7 @@ from models.document import DocumentResponse
 
 from db.repositories.document_repo import (
     create_document,
-    get_documents_by_tenant,
+    get_documents_by_department,
     get_document_by_id
 )
 from db.repositories.chunk_repo import (
@@ -16,43 +16,43 @@ from db.repositories.chunk_repo import (
     count_embedded_chunks_by_document,
     delete_chunks_by_document
 )
-from db.mongo import tenants_collection
+from db.mongo import departments_collection
 from ingestion.loaders.factory import load_document
 from ingestion.pipeline import process_document_into_chunks,embed_document_chunks
-from ingestion.batch_ingestion import bulk_ingest_tenant_folder
+from ingestion.batch_ingestion import bulk_ingest_department_folder
 
-router = APIRouter(prefix="/tenants", tags=["Documents"])
+router = APIRouter(prefix="/departments", tags=["Documents"])
 
 BASE_UPLOAD_DIR = Path("data/raw")
 
 
-@router.post("/{tenant_id}/documents/upload", response_model=DocumentResponse)
+@router.post("/{department_id}/documents/upload", response_model=DocumentResponse)
 def upload_document(
-    tenant_id: str,
+    department_id: str,
     title: str = Form(...),
     doc_type: str = Form(...),
     file: UploadFile = File(...)
 ):
-    tenant = tenants_collection.find_one({"slug": tenant_id})
-    if tenant is None:
-        raise HTTPException(status_code=404, detail="Tenant not found")
+    department = departments_collection.find_one({"slug": department_id})
+    if department is None:
+        raise HTTPException(status_code=404, detail="Department not found")
 
-    tenant_slug = tenant["slug"]
+    department_slug = department["slug"]
 
     allowed_extensions = {".pdf", ".docx"}
     ext = os.path.splitext(file.filename)[1].lower()
     if ext not in allowed_extensions:
         raise HTTPException(status_code=400, detail="Only PDF and DOCX files are allowed")
 
-    tenant_folder = BASE_UPLOAD_DIR / tenant_slug
-    tenant_folder.mkdir(parents=True, exist_ok=True)
+    department_folder = BASE_UPLOAD_DIR / department_slug
+    department_folder.mkdir(parents=True, exist_ok=True)
 
-    file_path = tenant_folder / file.filename
+    file_path = department_folder / file.filename
     with open(file_path, "wb") as buffer:
         shutil.copyfileobj(file.file, buffer)
 
     saved_doc = create_document(
-        tenant_id=str(tenant["_id"]),
+        department_id=str(department["_id"]),
         title=title,
         doc_type=doc_type,
         file_name=file.filename,
@@ -61,7 +61,7 @@ def upload_document(
 
     return DocumentResponse(
         id=str(saved_doc["_id"]),
-        tenant_id=saved_doc["tenant_id"],
+        department_id=saved_doc["department_id"],
         title=saved_doc["title"],
         doc_type=saved_doc["doc_type"],
         file_name=saved_doc["file_name"],
@@ -70,18 +70,18 @@ def upload_document(
     )
 
 
-@router.get("/{tenant_id}/documents", response_model=list[DocumentResponse])
-def list_documents(tenant_id: str):
-    tenant = tenants_collection.find_one({"slug": tenant_id})
-    if tenant is None:
-        raise HTTPException(status_code=404, detail="Tenant not found")
+@router.get("/{department_id}/documents", response_model=list[DocumentResponse])
+def list_documents(department_id: str):
+    department = departments_collection.find_one({"slug": department_id})
+    if department is None:
+        raise HTTPException(status_code=404, detail="Department not found")
 
-    docs = get_documents_by_tenant(str(tenant["_id"]))
+    docs = get_documents_by_department(str(department["_id"]))
 
     return [
         DocumentResponse(
             id=str(d["_id"]),
-            tenant_id=d["tenant_id"],
+            department_id=d["department_id"],
             title=d["title"],
             doc_type=d["doc_type"],
             file_name=d["file_name"],
@@ -92,24 +92,24 @@ def list_documents(tenant_id: str):
     ]
 
 
-@router.get("/{tenant_id}/documents/{document_id}/preview")
-def preview_document_text(tenant_id: str, document_id: str):
-    tenant = tenants_collection.find_one({"slug": tenant_id})
-    if tenant is None:
-        raise HTTPException(status_code=404, detail="Tenant not found")
+@router.get("/{department_id}/documents/{document_id}/preview")
+def preview_document_text(department_id: str, document_id: str):
+    department = departments_collection.find_one({"slug": department_id})
+    if department is None:
+        raise HTTPException(status_code=404, detail="Department not found")
 
     doc = get_document_by_id(document_id)
     if doc is None:
         raise HTTPException(status_code=404, detail="Document not found")
 
-    if doc["tenant_id"] != str(tenant["_id"]):
-        raise HTTPException(status_code=403, detail="This document does not belong to the given tenant")
+    if doc["department_id"] != str(department["_id"]):
+        raise HTTPException(status_code=403, detail="This document does not belong to the given department")
 
     try:
         docs = load_document(
             doc["file_path"],
             base_metadata={
-                "tenant_id": doc["tenant_id"],
+                "department_id": doc["department_id"],
                 "title": doc["title"],
                 "doc_type": doc["doc_type"],
                 "document_id": str(doc["_id"])
@@ -131,18 +131,18 @@ def preview_document_text(tenant_id: str, document_id: str):
     }
 
 
-@router.post("/{tenant_id}/documents/{document_id}/chunk")
-def chunk_document(tenant_id: str, document_id: str):
-    tenant = tenants_collection.find_one({"slug": tenant_id})
-    if tenant is None:
-        raise HTTPException(status_code=404, detail="Tenant not found")
+@router.post("/{department_id}/documents/{document_id}/chunk")
+def chunk_document(department_id: str, document_id: str):
+    department = departments_collection.find_one({"slug": department_id})
+    if department is None:
+        raise HTTPException(status_code=404, detail="Department not found")
 
     doc = get_document_by_id(document_id)
     if doc is None:
         raise HTTPException(status_code=404, detail="Document not found")
 
-    if doc["tenant_id"] != str(tenant["_id"]):
-        raise HTTPException(status_code=403, detail="This document does not belong to the given tenant")
+    if doc["department_id"] != str(department["_id"]):
+        raise HTTPException(status_code=403, detail="This document does not belong to the given department")
 
     try:
         result = process_document_into_chunks(document_id)
@@ -154,18 +154,18 @@ def chunk_document(tenant_id: str, document_id: str):
         raise HTTPException(status_code=500, detail=f"Chunking failed: {str(e)}")
 
 
-@router.get("/{tenant_id}/documents/{document_id}/chunks")
-def list_document_chunks(tenant_id: str, document_id: str):
-    tenant = tenants_collection.find_one({"slug": tenant_id})
-    if tenant is None:
-        raise HTTPException(status_code=404, detail="Tenant not found")
+@router.get("/{department_id}/documents/{document_id}/chunks")
+def list_document_chunks(department_id: str, document_id: str):
+    department = departments_collection.find_one({"slug": department_id})
+    if department is None:
+        raise HTTPException(status_code=404, detail="Department not found")
 
     doc = get_document_by_id(document_id)
     if doc is None:
         raise HTTPException(status_code=404, detail="Document not found")
 
-    if doc["tenant_id"] != str(tenant["_id"]):
-        raise HTTPException(status_code=403, detail="This document does not belong to the given tenant")
+    if doc["department_id"] != str(department["_id"]):
+        raise HTTPException(status_code=403, detail="This document does not belong to the given department")
 
     chunks = get_chunks_by_document(document_id)
 
@@ -185,18 +185,18 @@ def list_document_chunks(tenant_id: str, document_id: str):
             for chunk in chunks
         ]
     }
-@router.post("/{tenant_id}/documents/{document_id}/embed")
-def embed_chunks_for_document(tenant_id: str, document_id: str):
-    tenant = tenants_collection.find_one({"slug": tenant_id})
-    if tenant is None:
-        raise HTTPException(status_code=404, detail="Tenant not found")
+@router.post("/{department_id}/documents/{document_id}/embed")
+def embed_chunks_for_document(department_id: str, document_id: str):
+    department = departments_collection.find_one({"slug": department_id})
+    if department is None:
+        raise HTTPException(status_code=404, detail="Department not found")
 
     doc = get_document_by_id(document_id)
     if doc is None:
         raise HTTPException(status_code=404, detail="Document not found")
 
-    if doc["tenant_id"] != str(tenant["_id"]):
-        raise HTTPException(status_code=403, detail="This document does not belong to the given tenant")
+    if doc["department_id"] != str(department["_id"]):
+        raise HTTPException(status_code=403, detail="This document does not belong to the given department")
 
     try:
         result = embed_document_chunks(document_id)
@@ -206,30 +206,30 @@ def embed_chunks_for_document(tenant_id: str, document_id: str):
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Embedding failed: {str(e)}")
-@router.post("/{tenant_id}/documents/bulk-ingest")
+@router.post("/{department_id}/documents/bulk-ingest")
 def bulk_ingest_documents(
-    tenant_id: str,
+    department_id: str,
     reprocess_existing: bool = False
 ):
-    tenant = tenants_collection.find_one({"slug": tenant_id})
-    if tenant is None:
-        raise HTTPException(status_code=404, detail="Tenant not found")
+    department = departments_collection.find_one({"slug": department_id})
+    if department is None:
+        raise HTTPException(status_code=404, detail="Department not found")
 
     try:
-        result = bulk_ingest_tenant_folder(
-            tenant_slug=tenant_id,
+        result = bulk_ingest_department_folder(
+            department_slug=department_id,
             reprocess_existing=reprocess_existing
         )
         return result
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Bulk ingestion failed: {str(e)}")
-@router.get("/{tenant_id}/documents/status")
-def get_tenant_document_status(tenant_id: str):
-    tenant = tenants_collection.find_one({"slug": tenant_id})
-    if tenant is None:
-        raise HTTPException(status_code=404, detail="Tenant not found")
+@router.get("/{department_id}/documents/status")
+def get_department_document_status(department_id: str):
+    department = departments_collection.find_one({"slug": department_id})
+    if department is None:
+        raise HTTPException(status_code=404, detail="Department not found")
 
-    docs = get_documents_by_tenant(str(tenant["_id"]))
+    docs = get_documents_by_department(str(department["_id"]))
 
     results = []
     for doc in docs:
@@ -239,7 +239,7 @@ def get_tenant_document_status(tenant_id: str):
 
         results.append({
             "document_id": document_id,
-            "tenant_id": tenant["slug"],
+            "department_id": department["slug"],
             "title": doc["title"],
             "doc_type": doc["doc_type"],
             "file_name": doc["file_name"],
@@ -250,24 +250,24 @@ def get_tenant_document_status(tenant_id: str):
         })
 
     return {
-        "tenant_id": tenant["slug"],
+        "department_id": department["slug"],
         "total_documents": len(results),
         "documents": results
     }
-@router.post("/{tenant_id}/documents/{document_id}/reprocess")
-def reprocess_document(tenant_id: str, document_id: str):
-    tenant = tenants_collection.find_one({"slug": tenant_id})
-    if tenant is None:
-        raise HTTPException(status_code=404, detail="Tenant not found")
+@router.post("/{department_id}/documents/{document_id}/reprocess")
+def reprocess_document(department_id: str, document_id: str):
+    department = departments_collection.find_one({"slug": department_id})
+    if department is None:
+        raise HTTPException(status_code=404, detail="Department not found")
 
     doc = get_document_by_id(document_id)
     if doc is None:
         raise HTTPException(status_code=404, detail="Document not found")
 
-    if doc["tenant_id"] != str(tenant["_id"]):
+    if doc["department_id"] != str(department["_id"]):
         raise HTTPException(
             status_code=403,
-            detail="This document does not belong to the given tenant"
+            detail="This document does not belong to the given department"
         )
 
     try:
@@ -286,7 +286,7 @@ def reprocess_document(tenant_id: str, document_id: str):
 
         return {
             "message": "Document reprocessed successfully",
-            "tenant_id": tenant["slug"],
+            "department_id": department["slug"],
             "document_id": document_id,
             "title": doc["title"],
             "doc_type": doc["doc_type"],

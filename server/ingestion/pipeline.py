@@ -21,7 +21,7 @@ def process_document_into_chunks(document_id: str):
     docs = load_document(
         doc["file_path"],
         base_metadata={
-            "tenant_id": doc["tenant_id"],
+            "department_id": doc["department_id"],
             "document_id": str(doc["_id"]),
             "title": doc["title"],
             "doc_type": doc["doc_type"],
@@ -41,7 +41,7 @@ def process_document_into_chunks(document_id: str):
     chunk_records = []
     for idx, chunk in enumerate(chunked_records):
         chunk_records.append({
-            "tenant_id": doc["tenant_id"],
+            "department_id": doc["department_id"],
             "document_id": str(doc["_id"]),
             "title": doc["title"],
             "doc_type": doc["doc_type"],

@@ -2,10 +2,11 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from core.config import settings
 from db.mongo import ping_mongodb
-from api.routes.tenants import router as tenants_router
+
 from api.routes.documents import router as documents_router
 from api.routes.query import router as query_router
 from api.routes.health import router as health_router
+from api.routes.departments import router as departments_router
 
 app = FastAPI(title="Enterprise RAG API")
 
@@ -32,7 +33,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(tenants_router)
+
 app.include_router(documents_router)
 app.include_router(query_router)
 app.include_router(health_router)
+app.include_router(departments_router)

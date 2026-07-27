@@ -4,14 +4,14 @@ from db.mongo import documents_collection
 
 
 def create_document(
-    tenant_id: str,
+    department_id: str,
     title: str,
     doc_type: str,
     file_name: str,
     file_path: str
 ):
     doc = {
-        "tenant_id": tenant_id,
+        "department_id": department_id,
         "title": title,
         "doc_type": doc_type,
         "file_name": file_name,
@@ -29,19 +29,26 @@ def create_document(
     return doc
 
 
-def get_documents_by_tenant(tenant_id: str):
+def get_documents_by_department(department_id: str):
     return list(
-        documents_collection.find({"tenant_id": tenant_id}).sort("uploaded_at", -1)
+        documents_collection.find(
+            {"department_id": department_id}
+        ).sort("uploaded_at", -1)
     )
 
 
 def get_document_by_id(document_id: str):
-    return documents_collection.find_one({"_id": ObjectId(document_id)})
+    return documents_collection.find_one(
+        {"_id": ObjectId(document_id)}
+    )
 
 
-def get_document_by_tenant_and_file_name(tenant_id: str, file_name: str):
+def get_document_by_department_and_file_name(
+    department_id: str,
+    file_name: str
+):
     return documents_collection.find_one({
-        "tenant_id": tenant_id,
+        "department_id": department_id,
         "file_name": file_name
     })
 

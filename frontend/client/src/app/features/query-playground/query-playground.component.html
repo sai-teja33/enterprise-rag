@@ -1,33 +1,47 @@
 <section class="query-page">
   <div class="page-header">
     <div>
-      <h1>Query Playground</h1>
-      <p>Ask grounded questions against the selected tenant workspace.</p>
+      <h1>Enterprise Knowledge Assistant</h1>
+      <p>
+        Ask questions across your enterprise knowledge base. The system automatically routes each
+        question to the correct department before retrieving relevant documents.
+      </p>
     </div>
   </div>
 
   <div class="query-grid">
+    <!-- LEFT COLUMN -->
+
     <div class="primary-column">
       <mat-card class="panel-card">
         <div class="card-header">
-          <h2>Ask a question</h2>
-          <div class="tenant-pill">Tenant: {{ tenantState.selectedTenant().slug }}</div>
+          <h2>Ask a Question</h2>
         </div>
 
         <div class="sample-questions">
           @for (sample of sampleQuestions; track sample) {
-            <button mat-stroked-button (click)="selectSample(sample)">{{ sample }}</button>
+            <button mat-stroked-button (click)="selectSample(sample)">
+              {{ sample }}
+            </button>
           }
         </div>
 
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>Question</mat-label>
-          <textarea matInput rows="5" [(ngModel)]="question"></textarea>
+
+          <textarea
+            matInput
+            rows="5"
+            [(ngModel)]="question"
+            placeholder="Example: How many sick leaves are allowed?"
+          >
+          </textarea>
         </mat-form-field>
 
         <div class="controls-row">
           <mat-form-field appearance="outline">
             <mat-label>Top K</mat-label>
+
             <mat-select [(ngModel)]="topK">
               <mat-option [value]="3">3</mat-option>
               <mat-option [value]="5">5</mat-option>
@@ -37,32 +51,65 @@
           </mat-form-field>
 
           <button mat-flat-button color="primary" [disabled]="isLoading" (click)="askQuestion()">
-            {{ isLoading ? 'Asking…' : 'Ask' }}
+            {{ isLoading ? 'Searching...' : 'Ask Question' }}
           </button>
         </div>
       </mat-card>
 
       @if (isLoading) {
-        <app-loading-state message="Checking retrieval and answer generation…"></app-loading-state>
+        <app-loading-state
+          message="Routing question, retrieving documents and generating answer..."
+        >
+        </app-loading-state>
+
       } @else if (response) {
         <mat-card class="panel-card answer-card">
           <div class="card-header">
             <h2>Answer</h2>
-            @if (response.answer_mode) {
-              <app-status-badge
-                [label]="response.answer_mode"
-                [variant]="answerBadgeVariant"
-              ></app-status-badge>
-            }
+
+            <app-status-badge
+              [label]="response.answer_mode || 'answer'"
+              [variant]="answerBadgeVariant"
+            >
+            </app-status-badge>
           </div>
-          <p class="answer-text">{{ response.answer }}</p>
+
+          <div class="routing-panel">
+            <h3>🧠 Department Routing</h3>
+
+            <p>
+              <strong>Department:</strong>
+
+              {{ response.department | uppercase }}
+            </p>
+
+            <p>
+              <strong>Method:</strong>
+
+              {{ response.routing?.method | uppercase }}
+            </p>
+
+            <p>
+              <strong>Confidence:</strong>
+
+              {{ response.routing?.confidence }}
+            </p>
+          </div>
+
+          <div class="answer-box">
+            {{ response.answer }}
+          </div>
+
           <div class="reasoning-notes">
             <div>
-              <strong>Multiple cases:</strong>
+              <strong>Multiple Cases</strong>
+
               {{ response.reasoning_notes?.has_multiple_cases ? 'Yes' : 'No' }}
             </div>
+
             <div>
-              <strong>Partial support:</strong>
+              <strong>Partial Support</strong>
+
               {{ response.reasoning_notes?.has_partial_support ? 'Yes' : 'No' }}
             </div>
           </div>
@@ -71,11 +118,12 @@
         @if (response.used_citations?.length) {
           <mat-card class="panel-card">
             <div class="card-header">
-              <h2>Citations</h2>
+              <h2>Source Documents</h2>
             </div>
+
             <div class="citation-list">
-              @for (citation of response.used_citations; track citation.chunk_number) {
-                <app-citation-card [citation]="citation"></app-citation-card>
+              @for (citation of response.used_citations; track citation.chunk_id) {
+                <app-citation-card [citation]="citation"> </app-citation-card>
               }
             </div>
           </mat-card>
@@ -83,40 +131,41 @@
       }
     </div>
 
+    <!-- RIGHT COLUMN -->
+
     <div class="secondary-column">
       <mat-card class="panel-card">
         <div class="card-header">
           <h2>Retrieval Summary</h2>
         </div>
+
         @if (retrievalDebug) {
           <div class="summary-grid">
             <div class="summary-item">
-              <span>Top vector score</span
-              ><strong>{{ retrievalDebug.top_vector_score ?? '—' }}</strong>
+              <span>Vector Score</span>
+
+              <strong>{{ retrievalDebug.top_vector_score ?? '-' }}</strong>
             </div>
+
             <div class="summary-item">
-              <span>Top rerank score</span
-              ><strong>{{ retrievalDebug.top_rerank_score ?? '—' }}</strong>
+              <span>Rerank Score</span>
+
+              <strong>{{ retrievalDebug.top_rerank_score ?? '-' }}</strong>
             </div>
+
             <div class="summary-item">
-              <span>Num chunks</span><strong>{{ retrievalDebug.num_chunks ?? 0 }}</strong>
+              <span>Retrieved Chunks</span>
+
+              <strong>{{ retrievalDebug.num_chunks }}</strong>
             </div>
+
             <div class="summary-item">
-              <span>Coverage ratio</span><strong>{{ lexicalOverlap?.coverage_ratio ?? 0 }}</strong>
+              <span>Coverage</span>
+
+              <strong>{{ lexicalOverlap?.coverage_ratio }}</strong>
             </div>
           </div>
-          @if (lexicalOverlap) {
-            <div class="summary-grid secondary">
-              <div class="summary-item">
-                <span>Question tokens</span
-                ><strong>{{ lexicalOverlap.question_tokens?.join(', ') || '—' }}</strong>
-              </div>
-              <div class="summary-item">
-                <span>Matched tokens</span
-                ><strong>{{ lexicalOverlap.matched_tokens?.join(', ') || '—' }}</strong>
-              </div>
-            </div>
-          }
+
         } @else {
           <p class="muted">Run a query to inspect retrieval diagnostics.</p>
         }
@@ -126,26 +175,30 @@
         <div class="card-header">
           <h2>Retrieved Chunks</h2>
         </div>
+
         @if (retrievedChunks.length) {
           <div class="chunk-list">
             @for (chunk of retrievedChunks; track chunk.chunk_id) {
-              <app-chunk-debug-card [chunk]="chunk"></app-chunk-debug-card>
+              <app-chunk-debug-card [chunk]="chunk"> </app-chunk-debug-card>
             }
           </div>
+
         } @else {
-          <p class="muted">Retrieved chunks will appear here once you run a query.</p>
+          <p class="muted">Retrieved chunks will appear here after a query.</p>
         }
       </mat-card>
 
       @if (debugInfo?.rescue_used != null) {
         <mat-card class="panel-card">
           <div class="card-header">
-            <h2>Rescue Info</h2>
+            <h2>Rescue Pass</h2>
           </div>
+
           <app-status-badge
-            [label]="debugInfo?.rescue_used ? 'Rescue used: Yes' : 'Rescue used: No'"
+            [label]="debugInfo?.rescue_used ? 'Used' : 'Not Used'"
             [variant]="rescueBadgeVariant"
-          ></app-status-badge>
+          >
+          </app-status-badge>
         </mat-card>
       }
     </div>
