@@ -1,10 +1,10 @@
 from pathlib import Path
 from typing import Optional
 
-from db.mongo import tenants_collection
+from db.mongo import departments_collection
 from db.repositories.document_repo import (
     create_document,
-    get_document_by_tenant_and_file_name,
+    get_document_by_department_and_file_name,
     update_document_file_metadata
 )
 from ingestion.pipeline import process_document_into_chunks, embed_document_chunks
@@ -35,16 +35,16 @@ def infer_doc_type_from_filename(file_name: str) -> str:
     return "employee_handbook"
 
 
-def bulk_ingest_tenant_folder(
-    tenant_slug: str,
+def bulk_ingest_department_folder(
+    department_slug: str,
     folder_path: Optional[str] = None,
     reprocess_existing: bool = False
 ):
-    tenant = tenants_collection.find_one({"slug": tenant_slug})
-    if tenant is None:
-        raise ValueError("Tenant not found")
+    department = departments_collection.find_one({"slug":department_slug})
+    if department is None:
+        raise ValueError("Department not found")
 
-    tenant_id = str(tenant["_id"])
+    department_id = str(department["_id"])
 
     if folder_path:
        folder = Path(folder_path)
@@ -52,10 +52,10 @@ def bulk_ingest_tenant_folder(
     # Enterprise-RAG/server/ingestion/batch_ingestion.py
     # parents[2] = Enterprise-RAG/
       project_root = Path(__file__).resolve().parents[2]
-      folder = project_root / "data" / "raw" / tenant_slug
+      folder = project_root / "data" / "raw" / department_slug
 
     if not folder.exists() or not folder.is_dir():
-        raise ValueError(f"Tenant folder not found: {folder}")
+        raise ValueError(f"Department folder not found: {folder}")
 
     files = [
         p for p in folder.iterdir()
@@ -72,8 +72,8 @@ def bulk_ingest_tenant_folder(
         inferred_doc_type = infer_doc_type_from_filename(file_name)
         title = file_path.stem.replace("_", " ").replace("-", " ").strip()
 
-        existing_doc = get_document_by_tenant_and_file_name(
-            tenant_id=tenant_id,
+        existing_doc = get_document_by_department_and_file_name(
+            department_id=department_id,
             file_name=file_name
         )
 
@@ -86,7 +86,7 @@ def bulk_ingest_tenant_folder(
                     "status": "skipped_existing",
                     "document_id": str(existing_doc["_id"]),
                     "doc_type": existing_doc.get("doc_type"),
-                    "reason": "Document already exists for this tenant. Use reprocess_existing=true to rebuild."
+                    "reason": "Document already exists for this department. Use reprocess_existing=true to rebuild."
                 })
                 continue
 
@@ -119,7 +119,7 @@ def bulk_ingest_tenant_folder(
 
             # Case 3: new document
             saved_doc = create_document(
-                tenant_id=tenant_id,
+                department_id=department_id,
                 title=title,
                 doc_type=inferred_doc_type,
                 file_name=file_name,
@@ -151,7 +151,7 @@ def bulk_ingest_tenant_folder(
             })
 
     return {
-        "tenant": tenant_slug,
+        "department": department_slug,
         "folder": str(folder),
         "total_files_found": len(files),
         "processed": processed_count,

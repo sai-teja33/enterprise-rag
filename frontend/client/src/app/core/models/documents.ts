@@ -1,6 +1,6 @@
 export interface DocumentStatusItem {
   document_id: string;
-  tenant_id?: string;
+  department_id?: string;
   title: string;
   doc_type: string;
   file_name: string;
@@ -10,15 +10,15 @@ export interface DocumentStatusItem {
   ready_for_query: boolean;
 }
 
-export interface TenantDocumentStatusResponse {
-  tenant_id: string;
+export interface DepartmentDocumentStatusResponse {
+  department_id: string;
   total_documents: number;
   documents: DocumentStatusItem[];
 }
 
 export interface UploadDocumentResponse {
   id: string;
-  tenant_id: string;
+  department_id: string;
   title: string;
   doc_type: string;
   file_name: string;
@@ -54,7 +54,7 @@ export interface DocumentChunksResponse {
 
 export interface ReprocessDocumentResponse {
   message: string;
-  tenant_id: string;
+  department_id: string;
   document_id: string;
   title: string;
   doc_type: string;

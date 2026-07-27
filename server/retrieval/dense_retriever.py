@@ -5,7 +5,7 @@ VECTOR_INDEX_NAME = "chunk_vector_index"
 
 
 def retrieve_similar_chunks(
-    tenant_id: str,
+    department_id: str,
     question: str,
     top_k: int = 5
 ):
@@ -20,14 +20,14 @@ def retrieve_similar_chunks(
                 "numCandidates": 50,
                 "limit": top_k,
                 "filter": {
-                    "tenant_id": tenant_id
+                    "department_id": department_id
                 }
             }
         },
         {
             "$project": {
                 "_id": 1,
-                "tenant_id": 1,
+                "department_id": 1,
                 "document_id": 1,
                 "title": 1,
                 "doc_type": 1,
@@ -41,5 +41,4 @@ def retrieve_similar_chunks(
         }
     ]
 
-    results = list(chunks_collection.aggregate(pipeline))
-    return results
+    return list(chunks_collection.aggregate(pipeline))

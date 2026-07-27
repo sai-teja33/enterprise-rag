@@ -10,6 +10,8 @@ tenants_collection = db["tenants"]
 documents_collection = db["documents"]
 chunks_collection = db["document_chunks"]
 
+# 
+departments_collection = db["departments"]
 
 def ping_mongodb():
     try:

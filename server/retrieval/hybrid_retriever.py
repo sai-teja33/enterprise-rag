@@ -9,12 +9,10 @@ def merge_hybrid_results(
 ) -> list[dict]:
     """
     Merge vector + text results into a deduplicated candidate pool.
-    We do NOT do final ranking here anymore.
-    Final ranking will be done by the reranker.
+    Final ranking is performed by the reranker.
     """
     merged = {}
 
-    # Add vector results
     for rank, chunk in enumerate(vector_chunks, start=1):
         chunk_id = str(chunk["_id"])
         merged[chunk_id] = {
@@ -26,7 +24,6 @@ def merge_hybrid_results(
             "text_rank": None
         }
 
-    # Merge text results
     for rank, chunk in enumerate(text_chunks, start=1):
         chunk_id = str(chunk["_id"])
 
@@ -48,7 +45,7 @@ def merge_hybrid_results(
 
 
 def retrieve_hybrid_chunks(
-    tenant_id: str,
+    department_id: str,
     question: str,
     top_k: int = 5,
     vector_k: int = 8,
@@ -56,13 +53,13 @@ def retrieve_hybrid_chunks(
     rerank_top_k: int = 5
 ):
     vector_chunks = retrieve_similar_chunks(
-        tenant_id=tenant_id,
+        department_id=department_id,
         question=question,
         top_k=vector_k
     )
 
     text_chunks = retrieve_text_chunks(
-        tenant_id=tenant_id,
+        department_id=department_id,
         question=question,
         top_k=text_k
     )
@@ -79,8 +76,8 @@ def retrieve_hybrid_chunks(
     )
 
     return {
-        "merged_chunks": reranked_chunks,          # final top reranked chunks
-        "candidate_chunks": merged_candidates,     # pre-rerank candidate pool
+        "merged_chunks": reranked_chunks,
+        "candidate_chunks": merged_candidates,
         "vector_chunks": vector_chunks,
         "text_chunks": text_chunks
     }

@@ -5,9 +5,12 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTableModule } from '@angular/material/table';
 import { RouterLink } from '@angular/router';
+
 import { DocumentsApiService } from '../../core/services/documents-api.service';
-import { TenantStateService } from '../../core/services/tenant-state.service';
-import { TenantDocumentStatusResponse } from '../../core/models/documents';
+import { TenantStateService } from '../../core/services/department-state.service';
+
+import { DepartmentDocumentStatusResponse } from '../../core/models/documents';
+
 import { StatCardComponent } from '../../shared/components/stat-card/stat-card.component';
 import { StatusBadgeComponent } from '../../shared/components/status-badge/status-badge.component';
 import { LoadingStateComponent } from '../../shared/components/loading-state/loading-state.component';
@@ -33,10 +36,12 @@ import { EmptyStateComponent } from '../../shared/components/empty-state/empty-s
 })
 export class DashboardComponent implements OnInit {
   readonly documentsApi = inject(DocumentsApiService);
-  readonly tenantState = inject(TenantStateService);
+  readonly departmentState = inject(TenantStateService);
 
   isLoading = false;
-  statusResponse: TenantDocumentStatusResponse | null = null;
+
+  statusResponse: DepartmentDocumentStatusResponse | null = null;
+
   displayedColumns = [
     'title',
     'doc_type',
@@ -53,15 +58,18 @@ export class DashboardComponent implements OnInit {
 
   loadStatus(): void {
     this.isLoading = true;
-    this.documentsApi.getDocumentStatus(this.tenantState.getSelectedTenantSlug()).subscribe({
-      next: (response) => {
-        this.statusResponse = response;
-        this.isLoading = false;
-      },
-      error: () => {
-        this.isLoading = false;
-      },
-    });
+
+    this.documentsApi
+      .getDocumentStatus(this.departmentState.getSelectedDepartmentSlug())
+      .subscribe({
+        next: (response) => {
+          this.statusResponse = response;
+          this.isLoading = false;
+        },
+        error: () => {
+          this.isLoading = false;
+        },
+      });
   }
 
   get readyDocumentsCount(): number {

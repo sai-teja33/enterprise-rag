@@ -2,10 +2,12 @@
   <mat-sidenav-container class="shell-container">
     <mat-sidenav mode="side" opened class="sidebar">
       <div class="brand-block">
-        <div class="brand-icon">ER</div>
+        <div class="brand-icon">AI</div>
+
         <div>
-          <div class="brand-title">Enterprise RAG</div>
-          <div class="brand-subtitle">Knowledge Console</div>
+          <div class="brand-title">Enterprise Knowledge Assistant</div>
+
+          <div class="brand-subtitle">Department-Aware Hybrid RAG</div>
         </div>
       </div>
 
@@ -16,8 +18,13 @@
       <mat-nav-list>
         @for (item of navItems; track item.route) {
           <a mat-list-item [routerLink]="item.route" routerLinkActive="active-link">
-            <mat-icon matListItemIcon>{{ item.icon }}</mat-icon>
-            <span matListItemTitle>{{ item.label }}</span>
+            <mat-icon matListItemIcon>
+              {{ item.icon }}
+            </mat-icon>
+
+            <span matListItemTitle>
+              {{ item.label }}
+            </span>
           </a>
         }
       </mat-nav-list>
@@ -27,11 +34,15 @@
       <mat-toolbar class="topbar">
         <div class="topbar-title">
           <button mat-icon-button class="mobile-nav" aria-label="Toggle menu">
-            <mat-icon>menu</mat-icon>
+            <mat-icon> menu </mat-icon>
           </button>
+
           <div>
-            <div class="eyebrow">Tenant Workspace</div>
-            <div class="page-title">{{ tenantState.selectedTenant().label }}</div>
+            <div class="eyebrow">Department Workspace</div>
+
+            <div class="page-title">
+              {{ departmentState.selectedDepartment().label }}
+            </div>
           </div>
         </div>
       </mat-toolbar>

@@ -1,16 +1,18 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+
+import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
+import { MatExpansionModule } from '@angular/material/expansion';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { MatButtonModule } from '@angular/material/button';
-import { MatExpansionModule } from '@angular/material/expansion';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+
 import { QueryApiService } from '../../core/services/query-api.service';
-import { TenantStateService } from '../../core/services/tenant-state.service';
 import { QueryResponse } from '../../core/models/query';
+
 import { CitationCardComponent } from '../../shared/components/citation-card/citation-card.component';
 import { ChunkDebugCardComponent } from '../../shared/components/chunk-debug-card/chunk-debug-card.component';
 import { LoadingStateComponent } from '../../shared/components/loading-state/loading-state.component';
@@ -37,35 +39,37 @@ import { StatusBadgeComponent } from '../../shared/components/status-badge/statu
   templateUrl: './query-playground.component.html',
   styleUrl: './query-playground.component.scss',
 })
-export class QueryPlaygroundComponent implements OnInit {
+export class QueryPlaygroundComponent {
   readonly queryApi = inject(QueryApiService);
-  readonly tenantState = inject(TenantStateService);
   private readonly snackBar = inject(MatSnackBar);
 
   question = '';
-  topK = 5;
-  isLoading = false;
-  response: QueryResponse | null = null;
-  sampleQuestions = [
-    'Summarize the key policy updates for this tenant.',
-    'What are the most important documents to review?',
-    'Explain the latest onboarding guidance.',
-  ];
 
-  ngOnInit(): void {}
+  topK = 5;
+
+  isLoading = false;
+
+  response: QueryResponse | null = null;
+
+  sampleQuestions = [
+    'How many sick leaves are allowed?',
+    'Who is covered under medical insurance?',
+    'How do I reset my VPN password?',
+    'How do I install approved software?',
+  ];
 
   askQuestion(): void {
     if (!this.question.trim()) {
-      this.snackBar.open('Please enter a question before submitting.', 'Dismiss', {
-        duration: 4000,
+      this.snackBar.open('Please enter a question.', 'Dismiss', {
+        duration: 3000,
       });
       return;
     }
 
     this.isLoading = true;
+
     this.queryApi
       .askQuestion({
-        tenant_id: this.tenantState.getSelectedTenantSlug(),
         question: this.question,
         top_k: this.topK,
         debug: true,
@@ -75,18 +79,18 @@ export class QueryPlaygroundComponent implements OnInit {
           this.response = result;
           this.isLoading = false;
         },
+
         error: () => {
           this.isLoading = false;
-          this.snackBar.open(
-            'The query request failed. Please verify the backend is running.',
-            'Dismiss',
-            { duration: 4000 },
-          );
+
+          this.snackBar.open('Unable to query the backend.', 'Dismiss', {
+            duration: 4000,
+          });
         },
       });
   }
 
-  selectSample(question: string): void {
+  selectSample(question: string) {
     this.question = question;
   }
 
@@ -106,17 +110,20 @@ export class QueryPlaygroundComponent implements OnInit {
     return this.debugInfo?.retrieval?.retrieved_chunks ?? [];
   }
 
-  get answerBadgeVariant(): string {
-    if (this.response?.answer_mode === 'not_found') {
-      return 'not-found';
+  get answerBadgeVariant() {
+    switch (this.response?.answer_mode) {
+      case 'not_found':
+        return 'not-found';
+
+      case 'partial_answer':
+        return 'partial';
+
+      default:
+        return 'answer';
     }
-    if (this.response?.answer_mode === 'partial_answer') {
-      return 'partial';
-    }
-    return 'answer';
   }
 
-  get rescueBadgeVariant(): string {
+  get rescueBadgeVariant() {
     return this.debugInfo?.rescue_used ? 'answer' : 'not-found';
   }
 }

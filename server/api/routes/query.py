@@ -1,33 +1,33 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
 
-from db.mongo import tenants_collection
+from db.mongo import departments_collection
 from retrieval.hybrid_retriever import retrieve_hybrid_chunks
 from retrieval.relevance_guard import lexical_overlap_score
 from llm.answer_generator import generate_grounded_answer
+from router.department_router import route_department
 
 router = APIRouter(prefix="/query", tags=["Query"])
 
 
 class QueryRequest(BaseModel):
-    tenant_id: str = Field(..., description="Tenant slug, e.g. acme-tech")
     question: str = Field(..., min_length=3)
     top_k: int = Field(default=5, ge=1, le=10)
     debug: bool = Field(default=False, description="Return retrieval/debug metadata")
 
 
 MIN_VECTOR_SCORE_THRESHOLD = 0.65
-ABSTAIN_ANSWER = "I could not find a reliable answer in the uploaded tenant documents."
+ABSTAIN_ANSWER = "I could not find a reliable answer in the uploaded department documents."
 
 
-def build_citation(chunk_num: int, chunk: dict, tenant_slug: str) -> dict:
+def build_citation(chunk_num: int, chunk: dict, department_slug: str) -> dict:
     """
-    Standardize citation payload so all citations carry tenant_id.
+    Standardize citation payload so all citations carry department information.
     """
     return {
         "chunk_number": chunk_num,
         "chunk_id": str(chunk["_id"]),
-        "tenant_id": tenant_slug,
+        "department": department_slug,
         "document_id": chunk["document_id"],
         "title": chunk.get("title"),
         "doc_type": chunk.get("doc_type"),
@@ -62,15 +62,28 @@ def build_debug_chunk(chunk: dict) -> dict:
 
 @router.post("/search")
 def hybrid_search(payload: QueryRequest):
-    tenant = tenants_collection.find_one({"slug": payload.tenant_id})
-    if tenant is None:
-        raise HTTPException(status_code=404, detail="Tenant not found")
+    routing = route_department(payload.question)
 
-    tenant_db_id = str(tenant["_id"])
+    department_slug = routing["department"]
+    if department_slug == "unknown":
+        raise HTTPException(
+            status_code=400,
+            detail="Unable to determine the appropriate department for this question.")
+    
+    
+    department = departments_collection.find_one(
+    {"slug": department_slug})
+    if department is None:
+        raise HTTPException(
+        status_code=404,
+        detail="Department not found")
+    
 
+    department_db_id = str(department["_id"])
+ 
     try:
         retrieval = retrieve_hybrid_chunks(
-            tenant_id=tenant_db_id,
+            department_id=department_db_id,
             question=payload.question,
             top_k=payload.top_k,
             rerank_top_k=payload.top_k
@@ -81,13 +94,14 @@ def hybrid_search(payload: QueryRequest):
     chunks = retrieval["merged_chunks"]
 
     return {
-        "tenant": tenant["slug"],
+        "department": department_slug,
+        "routing": routing,
         "question": payload.question,
         "total_results": len(chunks),
         "results": [
             {
                 "chunk_id": str(chunk["_id"]),
-                "tenant_id": tenant["slug"],
+                "department": department_slug,
                 "document_id": chunk["document_id"],
                 "title": chunk.get("title"),
                 "doc_type": chunk.get("doc_type"),
@@ -109,16 +123,29 @@ def hybrid_search(payload: QueryRequest):
 
 @router.post("/ask")
 def ask_question(payload: QueryRequest):
-    tenant = tenants_collection.find_one({"slug": payload.tenant_id})
-    if tenant is None:
-        raise HTTPException(status_code=404, detail="Tenant not found")
+    routing = route_department(payload.question)
 
-    tenant_db_id = str(tenant["_id"])
-    tenant_slug = tenant["slug"]
+    department_slug = routing["department"]
+    if department_slug == "unknown":
+        raise HTTPException(
+              status_code=400,
+              detail="Unable to determine the appropriate department for this question."
+    )
+    department = departments_collection.find_one(
+    {"slug": department_slug})
+
+
+    if department is None:
+        raise HTTPException(
+        status_code=404,
+        detail="Department not found")
+        
+
+    department_db_id = str(department["_id"])
 
     try:
         retrieval = retrieve_hybrid_chunks(
-            tenant_id=tenant_db_id,
+            department_id=department_db_id,
             question=payload.question,
             top_k=payload.top_k,
             rerank_top_k=payload.top_k
@@ -131,7 +158,8 @@ def ask_question(payload: QueryRequest):
     # Case 1: no chunks found
     if not chunks:
         response = {
-            "tenant": tenant_slug,
+            "department": department_slug,
+            "routing": routing,
             "question": payload.question,
             "answer_mode": "not_found",
             "answer": ABSTAIN_ANSWER,
@@ -192,7 +220,8 @@ def ask_question(payload: QueryRequest):
     # Guardrail 1: weak vector evidence AND weak lexical overlap
     if top_vector_score < MIN_VECTOR_SCORE_THRESHOLD and overlap["coverage_ratio"] < 0.34:
         response = {
-            "tenant": tenant_slug,
+            "department": department_slug,
+            "routing": routing,
             "question": payload.question,
             "answer_mode": "not_found",
             "answer": ABSTAIN_ANSWER,
@@ -217,7 +246,8 @@ def ask_question(payload: QueryRequest):
     # Guardrail 2: lexical overlap is absent
     if overlap["coverage_ratio"] == 0:
         response = {
-            "tenant": tenant_slug,
+            "department": department_slug,
+            "routing": routing,
             "question": payload.question,
             "answer_mode": "not_found",
             "answer": ABSTAIN_ANSWER,
@@ -271,7 +301,8 @@ def ask_question(payload: QueryRequest):
     # If model abstains, don't return citations
     if answer_mode == "not_found" or answer == ABSTAIN_ANSWER:
         response = {
-            "tenant": tenant_slug,
+            "department": department_slug,
+            "routing": routing,
             "question": payload.question,
             "answer_mode": "not_found",
             "answer": ABSTAIN_ANSWER,
@@ -297,15 +328,16 @@ def ask_question(payload: QueryRequest):
     for chunk_num in used_chunk_numbers:
         if isinstance(chunk_num, int) and 1 <= chunk_num <= len(chunks):
             chunk = chunks[chunk_num - 1]
-            used_citations.append(build_citation(chunk_num, chunk, tenant_slug))
+            used_citations.append(build_citation(chunk_num, chunk, department_slug))
 
     # fallback only for non-abstained answers
     if not used_citations:
         for idx, chunk in enumerate(chunks[:2], start=1):
-            used_citations.append(build_citation(idx, chunk, tenant_slug))
+            used_citations.append(build_citation(idx, chunk, department_slug))
 
     response = {
-        "tenant": tenant_slug,
+        "department": department_slug,
+        "routing": routing,
         "question": payload.question,
         "answer_mode": answer_mode,
         "answer": answer,

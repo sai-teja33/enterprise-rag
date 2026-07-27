@@ -7,7 +7,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { DocumentsApiService } from '../../core/services/documents-api.service';
-import { TenantStateService } from '../../core/services/tenant-state.service';
+import { TenantStateService } from '../../core/services/department-state.service';
 
 @Component({
   selector: 'app-upload-document-dialog',
@@ -104,17 +104,19 @@ export class UploadDocumentDialogComponent {
     formData.append('doc_type', this.form.value.docType);
     formData.append('file', this.selectedFile);
 
-    this.documentsApi.uploadDocument(this.tenantState.getSelectedTenantSlug(), formData).subscribe({
-      next: () => {
-        this.isSubmitting = false;
-        this.snackBar.open('Document uploaded successfully.', 'Dismiss', { duration: 4000 });
-        this.dialogRef.close(true);
-      },
-      error: (error) => {
-        this.isSubmitting = false;
-        const message = error?.error?.detail ?? 'Upload failed.';
-        this.snackBar.open(message, 'Dismiss', { duration: 5000 });
-      },
-    });
+    this.documentsApi
+      .uploadDocument(this.tenantState.getSelectedDepartmentSlug(), formData)
+      .subscribe({
+        next: () => {
+          this.isSubmitting = false;
+          this.snackBar.open('Document uploaded successfully.', 'Dismiss', { duration: 4000 });
+          this.dialogRef.close(true);
+        },
+        error: (error) => {
+          this.isSubmitting = false;
+          const message = error?.error?.detail ?? 'Upload failed.';
+          this.snackBar.open(message, 'Dismiss', { duration: 5000 });
+        },
+      });
   }
 }
