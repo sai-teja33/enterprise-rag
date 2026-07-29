@@ -64,7 +64,14 @@ def build_debug_chunk(chunk: dict) -> dict:
 def hybrid_search(payload: QueryRequest):
     routing = route_department(payload.question)
 
-    department_slug = routing["department"]
+    # department_slug = routing["department"]
+    department_slug = "hr"
+
+    routing = {
+        "department": "hr",
+        "method": "fixed",
+        "confidence": 1.0}
+ 
     if department_slug == "unknown":
         raise HTTPException(
             status_code=400,
@@ -125,7 +132,14 @@ def hybrid_search(payload: QueryRequest):
 def ask_question(payload: QueryRequest):
     routing = route_department(payload.question)
 
-    department_slug = routing["department"]
+    # department_slug = routing["department"]
+    department_slug = "hr"
+
+    routing = {
+        "department": "hr",
+        "method": "fixed",
+        "confidence": 1.0}
+
     if department_slug == "unknown":
         raise HTTPException(
               status_code=400,
