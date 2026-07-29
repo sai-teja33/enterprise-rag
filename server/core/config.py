@@ -19,8 +19,24 @@ class Settings(BaseSettings):
     # Retrieval / embedding models
     EMBEDDING_MODEL: str = "text-embedding-3-small"
     EMBEDDING_BATCH_SIZE: int = 16
-    RERANKER_MODEL: str = "cross-encoder/ms-marco-MiniLM-L-6-v2"
 
+
+    # Cross Encoder / Reranker
+
+    CROSS_ENCODER_MODEL: str = "cross-encoder/ms-marco-MiniLM-L-6-v2"
+
+
+    # Retrieval Configuration
+
+    VECTOR_TOP_K: int = 10
+    TEXT_TOP_K: int = 10
+    RERANK_TOP_K: int = 5
+    MAX_CONTEXT_CHUNKS: int = 5
+
+    # Guardrails
+
+    MIN_VECTOR_SCORE: float = 0.65
+    LEXICAL_OVERLAP_THRESHOLD: float = 0.34
     # Frontend / deployment
     FRONTEND_ORIGINS: str = "http://localhost:4200,http://127.0.0.1:4200"
 

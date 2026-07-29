@@ -6,7 +6,7 @@ from retrieval.hybrid_retriever import retrieve_hybrid_chunks
 from retrieval.relevance_guard import lexical_overlap_score
 from llm.answer_generator import generate_grounded_answer
 from router.department_router import route_department
-
+from core.config import settings
 router = APIRouter(prefix="/query", tags=["Query"])
 
 
@@ -16,7 +16,7 @@ class QueryRequest(BaseModel):
     debug: bool = Field(default=False, description="Return retrieval/debug metadata")
 
 
-MIN_VECTOR_SCORE_THRESHOLD = 0.65
+MIN_VECTOR_SCORE_THRESHOLD = settings.MIN_VECTOR_SCORE
 ABSTAIN_ANSWER = "I could not find a reliable answer in the uploaded department documents."
 
 
