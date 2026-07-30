@@ -162,7 +162,9 @@ def list_document_chunks(document_id: str):
             {
                 "id": str(chunk["_id"]),
                 "chunk_index": chunk["chunk_index"],
-                "page_number": chunk.get("page_number"),
+                "page_start": chunk.get("page_start"),
+                "page_end": chunk.get("page_end"),
+                "page_number": chunk.get("page_start") or chunk.get("page_number"),
                 "section_title": chunk.get("section_title"),
                 "chunking_strategy": chunk.get("chunking_strategy"),
                 "chunk_size": chunk.get("chunk_size"),

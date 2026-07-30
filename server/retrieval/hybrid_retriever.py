@@ -21,7 +21,8 @@ def merge_hybrid_results(
             "vector_score": chunk.get("score"),
             "text_score": None,
             "vector_rank": rank,
-            "text_rank": None
+            "text_rank": None,
+            "rrf_score": 1.0 / (60 + rank)
         }
 
     for rank, chunk in enumerate(text_chunks, start=1):
@@ -31,6 +32,7 @@ def merge_hybrid_results(
             merged[chunk_id]["retrieval_sources"].append("text")
             merged[chunk_id]["text_score"] = chunk.get("score")
             merged[chunk_id]["text_rank"] = rank
+            merged[chunk_id]["rrf_score"] += 1.0 / (60 + rank)
         else:
             merged[chunk_id] = {
                 **chunk,
@@ -38,10 +40,11 @@ def merge_hybrid_results(
                 "vector_score": None,
                 "text_score": chunk.get("score"),
                 "vector_rank": None,
-                "text_rank": rank
+                "text_rank": rank,
+                "rrf_score": 1.0 / (60 + rank)
             }
 
-    return list(merged.values())
+    return sorted(merged.values(), key=lambda item: item.get("rrf_score", 0), reverse=True)
 
 
 def retrieve_hybrid_chunks(

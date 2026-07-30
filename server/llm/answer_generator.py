@@ -14,12 +14,22 @@ def build_context(chunks: list[dict]) -> str:
     context_parts = []
 
     for idx, chunk in enumerate(chunks, start=1):
+        page_start = chunk.get("page_start")
+        page_end = chunk.get("page_end")
+        if page_start is None:
+            page_range = str(chunk.get("page_number", ""))
+        elif page_start == page_end:
+            page_range = str(page_start)
+        else:
+            page_range = f"{page_start}-{page_end}"
+
         context_parts.append(
             f"""[Chunk {idx}]
 Title: {chunk.get("title", "")}
 Doc Type: {chunk.get("doc_type", "")}
 File: {chunk.get("file_name", "")}
-Page: {chunk.get("page_number", "")}
+Section: {chunk.get("section_title", "")}
+Pages: {page_range}
 Content:
 {chunk.get("chunk_text", "")}
 """
