@@ -30,11 +30,6 @@ import { TenantStateService } from '../../core/services/department-state.service
           <input matInput formControlName="title" />
         </mat-form-field>
 
-        <mat-form-field appearance="outline">
-          <mat-label>Document Type</mat-label>
-          <input matInput formControlName="docType" />
-        </mat-form-field>
-
         <input type="file" accept=".pdf,.docx" (change)="onFileSelected($event)" />
       </form>
     </mat-dialog-content>
@@ -77,7 +72,6 @@ export class UploadDocumentDialogComponent {
   constructor() {
     this.form = this.fb.group({
       title: ['', Validators.required],
-      docType: ['', Validators.required],
     });
   }
 
@@ -101,22 +95,19 @@ export class UploadDocumentDialogComponent {
     this.isSubmitting = true;
     const formData = new FormData();
     formData.append('title', this.form.value.title);
-    formData.append('doc_type', this.form.value.docType);
     formData.append('file', this.selectedFile);
 
-    this.documentsApi
-      .uploadDocument(this.tenantState.getSelectedDepartmentSlug(), formData)
-      .subscribe({
-        next: () => {
-          this.isSubmitting = false;
-          this.snackBar.open('Document uploaded successfully.', 'Dismiss', { duration: 4000 });
-          this.dialogRef.close(true);
-        },
-        error: (error) => {
-          this.isSubmitting = false;
-          const message = error?.error?.detail ?? 'Upload failed.';
-          this.snackBar.open(message, 'Dismiss', { duration: 5000 });
-        },
-      });
+    this.documentsApi.uploadDocument(formData).subscribe({
+      next: () => {
+        this.isSubmitting = false;
+        this.snackBar.open('Document uploaded successfully.', 'Dismiss', { duration: 4000 });
+        this.dialogRef.close(true);
+      },
+      error: (error) => {
+        this.isSubmitting = false;
+        const message = error?.error?.detail ?? 'Upload failed.';
+        this.snackBar.open(message, 'Dismiss', { duration: 5000 });
+      },
+    });
   }
 }

@@ -1,26 +1,26 @@
-<section class="query-page">
+<section class="chat-page">
   <div class="page-header">
-    <div>
-      <h1>Enterprise Knowledge Assistant</h1>
-      <p>
-        Ask questions across your enterprise knowledge base. The system automatically routes each
-        question to the correct department before retrieving relevant documents.
-      </p>
-    </div>
+    <!-- <div>
+      <span class="eyebrow">HR Knowledge Assistant</span>
+      <h1>Search HR policies with trusted document evidence.</h1>
+      <p>Ask questions about leave, benefits, payroll, onboarding, and organization policies. Answers are backed by HR document citations and retrieval signals.</p>
+    </div> -->
   </div>
 
-  <div class="query-grid">
-    <!-- LEFT COLUMN -->
-
-    <div class="primary-column">
-      <mat-card class="panel-card">
-        <div class="card-header">
-          <h2>Ask a Question</h2>
+  <div class="chat-grid">
+    <div class="chat-column">
+      <mat-card class="query-panel">
+        <div class="panel-header">
+          <div>
+            <h2>HR question</h2>
+            <p>Type your HR document question and get grounded answers from uploaded policies.</p>
+          </div>
+          <span class="badge" aria-hidden="true">HR</span>
         </div>
 
         <div class="sample-questions">
           @for (sample of sampleQuestions; track sample) {
-            <button mat-stroked-button (click)="selectSample(sample)">
+            <button mat-stroked-button color="primary" (click)="selectSample(sample)">
               {{ sample }}
             </button>
           }
@@ -28,20 +28,17 @@
 
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>Question</mat-label>
-
           <textarea
             matInput
             rows="5"
             [(ngModel)]="question"
-            placeholder="Example: How many sick leaves are allowed?"
-          >
-          </textarea>
+            placeholder="Ask about policies, benefits, or IT support"
+          ></textarea>
         </mat-form-field>
 
         <div class="controls-row">
-          <mat-form-field appearance="outline">
+          <mat-form-field appearance="outline" class="topk-select">
             <mat-label>Top K</mat-label>
-
             <mat-select [(ngModel)]="topK">
               <mat-option [value]="3">3</mat-option>
               <mat-option [value]="5">5</mat-option>
@@ -51,79 +48,73 @@
           </mat-form-field>
 
           <button mat-flat-button color="primary" [disabled]="isLoading" (click)="askQuestion()">
-            {{ isLoading ? 'Searching...' : 'Ask Question' }}
+            {{ isLoading ? 'Thinking…' : 'Send' }}
           </button>
         </div>
       </mat-card>
 
       @if (isLoading) {
         <app-loading-state
-          message="Routing question, retrieving documents and generating answer..."
-        >
-        </app-loading-state>
-
+          message="Analyzing knowledge base and composing a response..."
+        ></app-loading-state>
       } @else if (response) {
-        <mat-card class="panel-card answer-card">
-          <div class="card-header">
-            <h2>Answer</h2>
-
+        <mat-card class="response-panel">
+          <div class="panel-header">
+            <div>
+              <h2>Answer</h2>
+              <p>Generated from enterprise documents and retrieval signals.</p>
+            </div>
             <app-status-badge
               [label]="response.answer_mode || 'answer'"
               [variant]="answerBadgeVariant"
-            >
-            </app-status-badge>
+            ></app-status-badge>
           </div>
 
-          <div class="routing-panel">
-            <h3>🧠 Department Routing</h3>
+          <div class="answer-box">{{ response.answer }}</div>
 
-            <p>
-              <strong>Department:</strong>
+          <mat-divider></mat-divider>
 
-              {{ response.department | uppercase }}
-            </p>
-
-            <p>
-              <strong>Method:</strong>
-
-              {{ response.routing?.method | uppercase }}
-            </p>
-
-            <p>
-              <strong>Confidence:</strong>
-
-              {{ response.routing?.confidence }}
-            </p>
-          </div>
-
-          <div class="answer-box">
-            {{ response.answer }}
-          </div>
-
-          <div class="reasoning-notes">
+          <div class="response-meta hr-meta">
             <div>
-              <strong>Multiple Cases</strong>
-
-              {{ response.reasoning_notes?.has_multiple_cases ? 'Yes' : 'No' }}
+              <span class="meta-label">Policy area</span>
+              <strong>{{ response.department || responseSource }}</strong>
             </div>
-
             <div>
-              <strong>Partial Support</strong>
-
-              {{ response.reasoning_notes?.has_partial_support ? 'Yes' : 'No' }}
+              <span class="meta-label">Retrieval method</span>
+              <strong>{{ responseMethod }}</strong>
+            </div>
+            <div>
+              <span class="meta-label">Confidence</span>
+              <strong>{{ responseConfidence }}</strong>
             </div>
           </div>
         </mat-card>
 
         @if (response.used_citations?.length) {
-          <mat-card class="panel-card">
-            <div class="card-header">
-              <h2>Source Documents</h2>
+          <mat-card class="sources-panel">
+            <div class="panel-header">
+              <div>
+                <h2>Document evidence</h2>
+                <p>Review the HR chunks that contributed to the answer.</p>
+              </div>
             </div>
-
             <div class="citation-list">
               @for (citation of response.used_citations; track citation.chunk_id) {
-                <app-citation-card [citation]="citation"> </app-citation-card>
+                <div class="citation-item">
+                  <div class="citation-heading">
+                    <span class="citation-title">{{ citation.title || citation.file_name }}</span>
+                    <span class="doc-type">{{ citation.doc_type || 'HR Policy' }}</span>
+                  </div>
+                  <div class="citation-details">
+                    <span>Page {{ citation.page_number || '-' }}</span>
+                    <span>Chunk {{ citation.chunk_index || '-' }}</span>
+                    <span>Source: {{ citation.retrieval_sources?.join(', ') || 'unknown' }}</span>
+                  </div>
+                  <div class="citation-details citation-metrics">
+                    <span>Vector {{ citation.vector_score ?? '-' }}</span>
+                    <span>Rerank {{ citation.rerank_score ?? '-' }}</span>
+                  </div>
+                </div>
               }
             </div>
           </mat-card>
@@ -131,76 +122,42 @@
       }
     </div>
 
-    <!-- RIGHT COLUMN -->
-
-    <div class="secondary-column">
+    <aside class="sidebar-panel">
       <mat-card class="panel-card">
-        <div class="card-header">
-          <h2>Retrieval Summary</h2>
-        </div>
-
-        @if (retrievalDebug) {
-          <div class="summary-grid">
-            <div class="summary-item">
-              <span>Vector Score</span>
-
-              <strong>{{ retrievalDebug.top_vector_score ?? '-' }}</strong>
-            </div>
-
-            <div class="summary-item">
-              <span>Rerank Score</span>
-
-              <strong>{{ retrievalDebug.top_rerank_score ?? '-' }}</strong>
-            </div>
-
-            <div class="summary-item">
-              <span>Retrieved Chunks</span>
-
-              <strong>{{ retrievalDebug.num_chunks }}</strong>
-            </div>
-
-            <div class="summary-item">
-              <span>Coverage</span>
-
-              <strong>{{ lexicalOverlap?.coverage_ratio }}</strong>
-            </div>
+        <h3>Query Summary</h3>
+        <div class="summary-grid">
+          <div>
+            <span>Vector Score</span>
+            <strong>{{ retrievalDebug?.top_vector_score ?? '-' }}</strong>
           </div>
-
-        } @else {
-          <p class="muted">Run a query to inspect retrieval diagnostics.</p>
-        }
+          <div>
+            <span>Rerank Score</span>
+            <strong>{{ retrievalDebug?.top_rerank_score ?? '-' }}</strong>
+          </div>
+          <div>
+            <span>Retrieved Chunks</span>
+            <strong>{{ retrievalDebug?.num_chunks ?? 0 }}</strong>
+          </div>
+          <div>
+            <span>Coverage</span>
+            <strong>{{ lexicalOverlap?.coverage_ratio ?? '-' }}</strong>
+          </div>
+        </div>
       </mat-card>
 
       <mat-card class="panel-card">
-        <div class="card-header">
-          <h2>Retrieved Chunks</h2>
+        <h3>Recent Queries</h3>
+        <div class="recent-queries">
+          @for (query of queryHistory.recentQueries(); track query) {
+            <button mat-button color="secondary" class="query-chip" (click)="selectSample(query)">
+              {{ query }}
+            </button>
+          }
+          @if (!queryHistory.recentQueries().length) {
+            <p class="muted">No recent queries yet. Start by asking a question.</p>
+          }
         </div>
-
-        @if (retrievedChunks.length) {
-          <div class="chunk-list">
-            @for (chunk of retrievedChunks; track chunk.chunk_id) {
-              <app-chunk-debug-card [chunk]="chunk"> </app-chunk-debug-card>
-            }
-          </div>
-
-        } @else {
-          <p class="muted">Retrieved chunks will appear here after a query.</p>
-        }
       </mat-card>
-
-      @if (debugInfo?.rescue_used != null) {
-        <mat-card class="panel-card">
-          <div class="card-header">
-            <h2>Rescue Pass</h2>
-          </div>
-
-          <app-status-badge
-            [label]="debugInfo?.rescue_used ? 'Used' : 'Not Used'"
-            [variant]="rescueBadgeVariant"
-          >
-          </app-status-badge>
-        </mat-card>
-      }
-    </div>
+    </aside>
   </div>
 </section>

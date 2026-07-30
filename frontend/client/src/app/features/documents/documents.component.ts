@@ -74,21 +74,19 @@ export class DocumentsComponent implements OnInit {
   loadStatus(): void {
     this.isLoading = true;
 
-    this.documentsApi
-      .getDocumentStatus(this.departmentState.getSelectedDepartmentSlug())
-      .subscribe({
-        next: (response) => {
-          this.statusResponse = response;
-          this.isLoading = false;
-        },
-        error: () => {
-          this.isLoading = false;
+    this.documentsApi.getDocumentStatus().subscribe({
+      next: (response) => {
+        this.statusResponse = response;
+        this.isLoading = false;
+      },
+      error: () => {
+        this.isLoading = false;
 
-          this.snackBar.open('Unable to load documents.', 'Dismiss', {
-            duration: 4000,
-          });
-        },
-      });
+        this.snackBar.open('Unable to load documents.', 'Dismiss', {
+          duration: 4000,
+        });
+      },
+    });
   }
 
   openUploadDialog(): void {
@@ -104,61 +102,55 @@ export class DocumentsComponent implements OnInit {
   }
 
   openPreview(document: DocumentStatusItem): void {
-    this.documentsApi
-      .previewDocument(this.departmentState.getSelectedDepartmentSlug(), document.document_id)
-      .subscribe({
-        next: (response) => {
-          this.dialog.open(PreviewDocumentDialogComponent, {
-            width: '720px',
-            data: response,
-          });
-        },
-        error: () => {
-          this.snackBar.open('Unable to preview document.', 'Dismiss', {
-            duration: 4000,
-          });
-        },
-      });
+    this.documentsApi.previewDocument(document.document_id).subscribe({
+      next: (response) => {
+        this.dialog.open(PreviewDocumentDialogComponent, {
+          width: '720px',
+          data: response,
+        });
+      },
+      error: () => {
+        this.snackBar.open('Unable to preview document.', 'Dismiss', {
+          duration: 4000,
+        });
+      },
+    });
   }
 
   openChunks(document: DocumentStatusItem): void {
-    this.documentsApi
-      .getDocumentChunks(this.departmentState.getSelectedDepartmentSlug(), document.document_id)
-      .subscribe({
-        next: (response) => {
-          this.dialog.open(ChunksDialogComponent, {
-            width: '780px',
-            data: response,
-          });
-        },
-        error: () => {
-          this.snackBar.open('Unable to load document chunks.', 'Dismiss', {
-            duration: 4000,
-          });
-        },
-      });
+    this.documentsApi.getDocumentChunks(document.document_id).subscribe({
+      next: (response) => {
+        this.dialog.open(ChunksDialogComponent, {
+          width: '780px',
+          data: response,
+        });
+      },
+      error: () => {
+        this.snackBar.open('Unable to load document chunks.', 'Dismiss', {
+          duration: 4000,
+        });
+      },
+    });
   }
 
   reprocess(document: DocumentStatusItem): void {
     this.isLoading = true;
 
-    this.documentsApi
-      .reprocessDocument(this.departmentState.getSelectedDepartmentSlug(), document.document_id)
-      .subscribe({
-        next: () => {
-          this.snackBar.open('Document reprocessed successfully.', 'Dismiss', {
-            duration: 4000,
-          });
+    this.documentsApi.reprocessDocument(document.document_id).subscribe({
+      next: () => {
+        this.snackBar.open('Document reprocessed successfully.', 'Dismiss', {
+          duration: 4000,
+        });
 
-          this.loadStatus();
-        },
-        error: () => {
-          this.isLoading = false;
+        this.loadStatus();
+      },
+      error: () => {
+        this.isLoading = false;
 
-          this.snackBar.open('Document reprocessing failed.', 'Dismiss', {
-            duration: 4000,
-          });
-        },
-      });
+        this.snackBar.open('Document reprocessing failed.', 'Dismiss', {
+          duration: 4000,
+        });
+      },
+    });
   }
 }
