@@ -13,16 +13,16 @@ export const routes: Routes = [
           import('./features/dashboard/dashboard.component').then((m) => m.DashboardComponent),
       },
       {
-        path: 'documents',
-        loadComponent: () =>
-          import('./features/documents/documents.component').then((m) => m.DocumentsComponent),
-      },
-      {
-        path: 'query',
+        path: 'chat',
         loadComponent: () =>
           import('./features/query-playground/query-playground.component').then(
             (m) => m.QueryPlaygroundComponent,
           ),
+      },
+      {
+        path: 'documents',
+        loadComponent: () =>
+          import('./features/documents/documents.component').then((m) => m.DocumentsComponent),
       },
     ],
   },

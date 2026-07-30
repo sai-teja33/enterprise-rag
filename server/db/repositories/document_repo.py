@@ -4,14 +4,12 @@ from db.mongo import documents_collection
 
 
 def create_document(
-    department_id: str,
     title: str,
     doc_type: str,
     file_name: str,
     file_path: str
 ):
     doc = {
-        "department_id": department_id,
         "title": title,
         "doc_type": doc_type,
         "file_name": file_name,
@@ -29,11 +27,9 @@ def create_document(
     return doc
 
 
-def get_documents_by_department(department_id: str):
+def get_all_documents():
     return list(
-        documents_collection.find(
-            {"department_id": department_id}
-        ).sort("uploaded_at", -1)
+        documents_collection.find().sort("uploaded_at", -1)
     )
 
 
@@ -43,12 +39,8 @@ def get_document_by_id(document_id: str):
     )
 
 
-def get_document_by_department_and_file_name(
-    department_id: str,
-    file_name: str
-):
+def get_document_by_file_name(file_name: str):
     return documents_collection.find_one({
-        "department_id": department_id,
         "file_name": file_name
     })
 

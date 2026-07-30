@@ -59,17 +59,15 @@ export class DashboardComponent implements OnInit {
   loadStatus(): void {
     this.isLoading = true;
 
-    this.documentsApi
-      .getDocumentStatus(this.departmentState.getSelectedDepartmentSlug())
-      .subscribe({
-        next: (response) => {
-          this.statusResponse = response;
-          this.isLoading = false;
-        },
-        error: () => {
-          this.isLoading = false;
-        },
-      });
+    this.documentsApi.getDocumentStatus().subscribe({
+      next: (response) => {
+        this.statusResponse = response;
+        this.isLoading = false;
+      },
+      error: () => {
+        this.isLoading = false;
+      },
+    });
   }
 
   get readyDocumentsCount(): number {

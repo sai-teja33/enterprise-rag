@@ -5,7 +5,6 @@ VECTOR_INDEX_NAME = "chunk_vector_index"
 
 
 def retrieve_similar_chunks(
-    department_id: str,
     question: str,
     top_k: int = 5
 ):
@@ -19,15 +18,12 @@ def retrieve_similar_chunks(
                 "queryVector": query_embedding,
                 "numCandidates": 50,
                 "limit": top_k,
-                "filter": {
-                    "department_id": department_id
-                }
             }
         },
         {
             "$project": {
                 "_id": 1,
-                "department_id": 1,
+
                 "document_id": 1,
                 "title": 1,
                 "doc_type": 1,

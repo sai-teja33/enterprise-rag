@@ -1,12 +1,12 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
 
-from db.mongo import departments_collection
+
 from retrieval.hybrid_retriever import retrieve_hybrid_chunks
 from retrieval.relevance_guard import lexical_overlap_score
 from llm.answer_generator import generate_grounded_answer
-from router.department_router import route_department
 
+from core.config import settings
 router = APIRouter(prefix="/query", tags=["Query"])
 
 
@@ -16,18 +16,17 @@ class QueryRequest(BaseModel):
     debug: bool = Field(default=False, description="Return retrieval/debug metadata")
 
 
-MIN_VECTOR_SCORE_THRESHOLD = 0.65
-ABSTAIN_ANSWER = "I could not find a reliable answer in the uploaded department documents."
+MIN_VECTOR_SCORE_THRESHOLD = settings.MIN_VECTOR_SCORE
+ABSTAIN_ANSWER = "I could not find a reliable answer in the uploaded documents."
 
 
-def build_citation(chunk_num: int, chunk: dict, department_slug: str) -> dict:
+def build_citation(chunk_num: int, chunk: dict) -> dict:
     """
-    Standardize citation payload so all citations carry department information.
+    Standardize citation payload so all citations carry information.
     """
     return {
         "chunk_number": chunk_num,
         "chunk_id": str(chunk["_id"]),
-        "department": department_slug,
         "document_id": chunk["document_id"],
         "title": chunk.get("title"),
         "doc_type": chunk.get("doc_type"),
@@ -62,28 +61,11 @@ def build_debug_chunk(chunk: dict) -> dict:
 
 @router.post("/search")
 def hybrid_search(payload: QueryRequest):
-    routing = route_department(payload.question)
 
-    department_slug = routing["department"]
-    if department_slug == "unknown":
-        raise HTTPException(
-            status_code=400,
-            detail="Unable to determine the appropriate department for this question.")
     
-    
-    department = departments_collection.find_one(
-    {"slug": department_slug})
-    if department is None:
-        raise HTTPException(
-        status_code=404,
-        detail="Department not found")
-    
-
-    department_db_id = str(department["_id"])
  
     try:
         retrieval = retrieve_hybrid_chunks(
-            department_id=department_db_id,
             question=payload.question,
             top_k=payload.top_k,
             rerank_top_k=payload.top_k
@@ -94,14 +76,14 @@ def hybrid_search(payload: QueryRequest):
     chunks = retrieval["merged_chunks"]
 
     return {
-        "department": department_slug,
-        "routing": routing,
+        
+        
         "question": payload.question,
         "total_results": len(chunks),
         "results": [
             {
                 "chunk_id": str(chunk["_id"]),
-                "department": department_slug,
+                
                 "document_id": chunk["document_id"],
                 "title": chunk.get("title"),
                 "doc_type": chunk.get("doc_type"),
@@ -123,29 +105,12 @@ def hybrid_search(payload: QueryRequest):
 
 @router.post("/ask")
 def ask_question(payload: QueryRequest):
-    routing = route_department(payload.question)
-
-    department_slug = routing["department"]
-    if department_slug == "unknown":
-        raise HTTPException(
-              status_code=400,
-              detail="Unable to determine the appropriate department for this question."
-    )
-    department = departments_collection.find_one(
-    {"slug": department_slug})
 
 
-    if department is None:
-        raise HTTPException(
-        status_code=404,
-        detail="Department not found")
-        
-
-    department_db_id = str(department["_id"])
+    
 
     try:
         retrieval = retrieve_hybrid_chunks(
-            department_id=department_db_id,
             question=payload.question,
             top_k=payload.top_k,
             rerank_top_k=payload.top_k
@@ -158,8 +123,8 @@ def ask_question(payload: QueryRequest):
     # Case 1: no chunks found
     if not chunks:
         response = {
-            "department": department_slug,
-            "routing": routing,
+            
+            
             "question": payload.question,
             "answer_mode": "not_found",
             "answer": ABSTAIN_ANSWER,
@@ -220,8 +185,8 @@ def ask_question(payload: QueryRequest):
     # Guardrail 1: weak vector evidence AND weak lexical overlap
     if top_vector_score < MIN_VECTOR_SCORE_THRESHOLD and overlap["coverage_ratio"] < 0.34:
         response = {
-            "department": department_slug,
-            "routing": routing,
+            
+            
             "question": payload.question,
             "answer_mode": "not_found",
             "answer": ABSTAIN_ANSWER,
@@ -246,8 +211,8 @@ def ask_question(payload: QueryRequest):
     # Guardrail 2: lexical overlap is absent
     if overlap["coverage_ratio"] == 0:
         response = {
-            "department": department_slug,
-            "routing": routing,
+            
+            
             "question": payload.question,
             "answer_mode": "not_found",
             "answer": ABSTAIN_ANSWER,
@@ -301,8 +266,8 @@ def ask_question(payload: QueryRequest):
     # If model abstains, don't return citations
     if answer_mode == "not_found" or answer == ABSTAIN_ANSWER:
         response = {
-            "department": department_slug,
-            "routing": routing,
+            
+            
             "question": payload.question,
             "answer_mode": "not_found",
             "answer": ABSTAIN_ANSWER,
@@ -328,16 +293,16 @@ def ask_question(payload: QueryRequest):
     for chunk_num in used_chunk_numbers:
         if isinstance(chunk_num, int) and 1 <= chunk_num <= len(chunks):
             chunk = chunks[chunk_num - 1]
-            used_citations.append(build_citation(chunk_num, chunk, department_slug))
+            used_citations.append(build_citation(chunk_num, chunk))
 
     # fallback only for non-abstained answers
     if not used_citations:
         for idx, chunk in enumerate(chunks[:2], start=1):
-            used_citations.append(build_citation(idx, chunk, department_slug))
+            used_citations.append(build_citation(idx, chunk))
 
     response = {
-        "department": department_slug,
-        "routing": routing,
+        
+        
         "question": payload.question,
         "answer_mode": answer_mode,
         "answer": answer,

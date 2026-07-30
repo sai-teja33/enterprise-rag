@@ -1,13 +1,12 @@
 <div class="app-shell">
   <mat-sidenav-container class="shell-container">
-    <mat-sidenav mode="side" opened class="sidebar">
+    <mat-sidenav #drawer class="sidebar" mode="side" [opened]="isSidenavOpen()" fixedTopGap="64">
       <div class="brand-block">
         <div class="brand-icon">AI</div>
 
         <div>
-          <div class="brand-title">Enterprise Knowledge Assistant</div>
-
-          <div class="brand-subtitle">Department-Aware Hybrid RAG</div>
+          <div class="brand-title">Enterprise RAG</div>
+          <div class="brand-subtitle">Modern knowledge assistant</div>
         </div>
       </div>
 
@@ -17,14 +16,14 @@
 
       <mat-nav-list>
         @for (item of navItems; track item.route) {
-          <a mat-list-item [routerLink]="item.route" routerLinkActive="active-link">
-            <mat-icon matListItemIcon>
-              {{ item.icon }}
-            </mat-icon>
-
-            <span matListItemTitle>
-              {{ item.label }}
-            </span>
+          <a
+            mat-list-item
+            [routerLink]="item.route"
+            routerLinkActive="active-link"
+            [routerLinkActiveOptions]="{ exact: true }"
+          >
+            <mat-icon matListItemIcon>{{ item.icon }}</mat-icon>
+            <span matListItemTitle>{{ item.label }}</span>
           </a>
         }
       </mat-nav-list>
@@ -32,18 +31,22 @@
 
     <mat-sidenav-content>
       <mat-toolbar class="topbar">
+        <button
+          mat-icon-button
+          class="mobile-nav"
+          aria-label="Toggle navigation"
+          (click)="toggleSidenav()"
+        >
+          <mat-icon>menu</mat-icon>
+        </button>
+
         <div class="topbar-title">
-          <button mat-icon-button class="mobile-nav" aria-label="Toggle menu">
-            <mat-icon> menu </mat-icon>
-          </button>
+          <div class="eyebrow">Enterprise Knowledge Assistant</div>
+          <div class="page-title">{{ currentPageLabel }}</div>
+        </div>
 
-          <div>
-            <div class="eyebrow">Department Workspace</div>
-
-            <div class="page-title">
-              {{ departmentState.selectedDepartment().label }}
-            </div>
-          </div>
+        <div class="topbar-meta">
+          <span class="meta-pill">{{ departmentState.selectedDepartment().label }}</span>
         </div>
       </mat-toolbar>
 

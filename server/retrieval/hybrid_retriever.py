@@ -1,7 +1,7 @@
 from retrieval.dense_retriever import retrieve_similar_chunks
 from retrieval.text_retriever import retrieve_text_chunks
 from retrieval.reranker import reranker
-
+from core.config import settings
 
 def merge_hybrid_results(
     vector_chunks: list[dict],
@@ -45,21 +45,21 @@ def merge_hybrid_results(
 
 
 def retrieve_hybrid_chunks(
-    department_id: str,
+
     question: str,
-    top_k: int = 5,
-    vector_k: int = 8,
-    text_k: int = 8,
-    rerank_top_k: int = 5
+    top_k: int = settings.RERANK_TOP_K,
+    vector_k: int = settings.VECTOR_TOP_K,
+    text_k: int = settings.TEXT_TOP_K,
+    rerank_top_k: int = settings.RERANK_TOP_K,
 ):
     vector_chunks = retrieve_similar_chunks(
-        department_id=department_id,
+        
         question=question,
         top_k=vector_k
     )
 
     text_chunks = retrieve_text_chunks(
-        department_id=department_id,
+        
         question=question,
         top_k=text_k
     )

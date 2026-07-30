@@ -1,10 +1,11 @@
 from pathlib import Path
 from typing import Optional
+from utils.pdf_utils import extract_preview_text
+from classification.doc_classifier import classify_document
 
-from db.mongo import departments_collection
 from db.repositories.document_repo import (
     create_document,
-    get_document_by_department_and_file_name,
+    get_document_by_file_name,
     update_document_file_metadata
 )
 from ingestion.pipeline import process_document_into_chunks, embed_document_chunks
@@ -13,38 +14,14 @@ from ingestion.pipeline import process_document_into_chunks, embed_document_chun
 ALLOWED_EXTENSIONS = {".pdf", ".docx"}
 
 
-def infer_doc_type_from_filename(file_name: str) -> str:
-    """
-    Very simple filename-based doc type inference.
-    You can improve this later.
-    """
-    name = file_name.lower()
-
-    if "leave" in name:
-        return "leave_policy"
-    if "insurance" in name or "medical" in name or "health" in name:
-        return "insurance_policy"
-    if "travel" in name or "reimburse" in name or "expense" in name:
-        return "travel_policy"
-    if "conduct" in name:
-        return "code_of_conduct"
-    if "handbook" in name or "employee" in name:
-        return "employee_handbook"
-
-    # default fallback
-    return "employee_handbook"
 
 
-def bulk_ingest_department_folder(
-    department_slug: str,
+def bulk_ingest_folder(
+
     folder_path: Optional[str] = None,
     reprocess_existing: bool = False
 ):
-    department = departments_collection.find_one({"slug":department_slug})
-    if department is None:
-        raise ValueError("Department not found")
 
-    department_id = str(department["_id"])
 
     if folder_path:
        folder = Path(folder_path)
@@ -52,10 +29,10 @@ def bulk_ingest_department_folder(
     # Enterprise-RAG/server/ingestion/batch_ingestion.py
     # parents[2] = Enterprise-RAG/
       project_root = Path(__file__).resolve().parents[2]
-      folder = project_root / "data" / "raw" / department_slug
+      folder = project_root / "data" / "raw"
 
     if not folder.exists() or not folder.is_dir():
-        raise ValueError(f"Department folder not found: {folder}")
+        raise ValueError(f"folder not found: {folder}")
 
     files = [
         p for p in folder.iterdir()
@@ -69,11 +46,16 @@ def bulk_ingest_department_folder(
 
     for file_path in files:
         file_name = file_path.name
-        inferred_doc_type = infer_doc_type_from_filename(file_name)
+        preview = extract_preview_text(str(file_path))
+
+        inferred_doc_type = classify_document(
+                        file_name=file_name,
+                        preview=preview
+)
         title = file_path.stem.replace("_", " ").replace("-", " ").strip()
 
-        existing_doc = get_document_by_department_and_file_name(
-            department_id=department_id,
+        existing_doc = get_document_by_file_name(
+
             file_name=file_name
         )
 
@@ -86,7 +68,7 @@ def bulk_ingest_department_folder(
                     "status": "skipped_existing",
                     "document_id": str(existing_doc["_id"]),
                     "doc_type": existing_doc.get("doc_type"),
-                    "reason": "Document already exists for this department. Use reprocess_existing=true to rebuild."
+                    "reason": "Document already exists. Use reprocess_existing=true to rebuild."
                 })
                 continue
 
@@ -119,7 +101,7 @@ def bulk_ingest_department_folder(
 
             # Case 3: new document
             saved_doc = create_document(
-                department_id=department_id,
+
                 title=title,
                 doc_type=inferred_doc_type,
                 file_name=file_name,
@@ -151,7 +133,7 @@ def bulk_ingest_department_folder(
             })
 
     return {
-        "department": department_slug,
+
         "folder": str(folder),
         "total_files_found": len(files),
         "processed": processed_count,
