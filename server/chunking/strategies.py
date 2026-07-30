@@ -86,7 +86,7 @@ def section_recursive_chunk_docs(docs: list) -> list[dict]:
         if page_end is None:
             page_end = page_start
 
-        sections = split_text_into_sections(text)
+        sections = split_text_into_sections(text, blocks=metadata.get("blocks"))
         sections = merge_small_sections(sections)
 
         for section in sections:
@@ -158,27 +158,8 @@ def page_section_recursive_chunk_docs(docs: list) -> list[dict]:
         if page_end is None:
             page_end = page_start
 
-        sections = split_text_into_sections(text)
+        sections = split_text_into_sections(text, blocks=metadata.get("blocks"))
         sections = merge_small_sections(sections)
-
-        # ================= DEBUG =================
-        print("\n" + "=" * 80)
-        print("SECTION SPLITTER DEBUG")
-        print("=" * 80)
-
-        print(f"Total Sections: {len(sections)}")
-
-        for i, section in enumerate(sections):
-            print(f"\nSection {i + 1}")
-            print("Title:", section["section_title"])
-            print("Parent:", section["parent_section"])
-            print("Heading Level:", section["heading_level"])
-            print("Element Type:", section["element_type"])
-            print("Content Preview:")
-            print(section["section_text"][:250])
-
-        print("=" * 80)
-        # =========================================
 
         for section in sections:
 

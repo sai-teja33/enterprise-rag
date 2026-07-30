@@ -23,7 +23,7 @@ class Settings(BaseSettings):
 
     # Cross Encoder / Reranker
 
-    CROSS_ENCODER_MODEL: str = "cross-encoder/ms-marco-MiniLM-L-6-v2"
+    CROSS_ENCODER_MODEL: str = "cross-encoder/ms-marco-MiniLM-L-12-v2"
 
 
     # Retrieval Configuration
