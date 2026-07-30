@@ -1,13 +1,15 @@
 import os
 import shutil
 from pathlib import Path
+from utils.pdf_utils import extract_preview_text
+from classification.doc_classifier import classify_document
 
 from fastapi import APIRouter, UploadFile, File, Form, HTTPException
 from models.document import DocumentResponse
 
 from db.repositories.document_repo import (
     create_document,
-    get_documents_by_department,
+    get_all_documents,
     get_document_by_id
 )
 from db.repositories.chunk_repo import (
@@ -16,52 +18,47 @@ from db.repositories.chunk_repo import (
     count_embedded_chunks_by_document,
     delete_chunks_by_document
 )
-from db.mongo import departments_collection
+
 from ingestion.loaders.factory import load_document
 from ingestion.pipeline import process_document_into_chunks,embed_document_chunks
-from ingestion.batch_ingestion import bulk_ingest_department_folder
+from ingestion.batch_ingestion import bulk_ingest_folder
 
-router = APIRouter(prefix="/departments", tags=["Documents"])
+router = APIRouter(prefix="/documents", tags=["Documents"])
 
 BASE_UPLOAD_DIR = Path("data/raw")
 
 
-@router.post("/{department_id}/documents/upload", response_model=DocumentResponse)
+@router.post("/upload", response_model=DocumentResponse)
 def upload_document(
-    department_id: str,
     title: str = Form(...),
-    doc_type: str = Form(...),
     file: UploadFile = File(...)
 ):
-    department = departments_collection.find_one({"slug": department_id})
-    if department is None:
-        raise HTTPException(status_code=404, detail="Department not found")
-
-    department_slug = department["slug"]
-
     allowed_extensions = {".pdf", ".docx"}
     ext = os.path.splitext(file.filename)[1].lower()
     if ext not in allowed_extensions:
         raise HTTPException(status_code=400, detail="Only PDF and DOCX files are allowed")
 
-    department_folder = BASE_UPLOAD_DIR / department_slug
-    department_folder.mkdir(parents=True, exist_ok=True)
+    BASE_UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 
-    file_path = department_folder / file.filename
+    file_path = BASE_UPLOAD_DIR / file.filename
     with open(file_path, "wb") as buffer:
         shutil.copyfileobj(file.file, buffer)
+    preview = extract_preview_text(str(file_path))
+
+    doc_type = classify_document(
+    file_name=file.filename,
+    preview=preview)
 
     saved_doc = create_document(
-        department_id=str(department["_id"]),
-        title=title,
-        doc_type=doc_type,
-        file_name=file.filename,
-        file_path=str(file_path)
-    )
+    title=title,
+    doc_type=doc_type,
+    file_name=file.filename,
+    file_path=str(file_path)
+)
 
     return DocumentResponse(
         id=str(saved_doc["_id"]),
-        department_id=saved_doc["department_id"],
+        
         title=saved_doc["title"],
         doc_type=saved_doc["doc_type"],
         file_name=saved_doc["file_name"],
@@ -70,18 +67,16 @@ def upload_document(
     )
 
 
-@router.get("/{department_id}/documents", response_model=list[DocumentResponse])
-def list_documents(department_id: str):
-    department = departments_collection.find_one({"slug": department_id})
-    if department is None:
-        raise HTTPException(status_code=404, detail="Department not found")
+@router.get("/documents", response_model=list[DocumentResponse])
+def list_documents():
 
-    docs = get_documents_by_department(str(department["_id"]))
+
+    docs = get_all_documents()
 
     return [
         DocumentResponse(
             id=str(d["_id"]),
-            department_id=d["department_id"],
+            
             title=d["title"],
             doc_type=d["doc_type"],
             file_name=d["file_name"],
@@ -92,27 +87,24 @@ def list_documents(department_id: str):
     ]
 
 
-@router.get("/{department_id}/documents/{document_id}/preview")
-def preview_document_text(department_id: str, document_id: str):
-    department = departments_collection.find_one({"slug": department_id})
-    if department is None:
-        raise HTTPException(status_code=404, detail="Department not found")
+@router.get("/{document_id}/preview")
+def preview_document_text(document_id: str):
+
 
     doc = get_document_by_id(document_id)
     if doc is None:
         raise HTTPException(status_code=404, detail="Document not found")
 
-    if doc["department_id"] != str(department["_id"]):
-        raise HTTPException(status_code=403, detail="This document does not belong to the given department")
 
     try:
         docs = load_document(
             doc["file_path"],
             base_metadata={
-                "department_id": doc["department_id"],
+
                 "title": doc["title"],
                 "doc_type": doc["doc_type"],
-                "document_id": str(doc["_id"])
+                "document_id": str(doc["_id"]),
+                "file_name": doc["file_name"]
             }
         )
     except Exception as e:
@@ -131,18 +123,15 @@ def preview_document_text(department_id: str, document_id: str):
     }
 
 
-@router.post("/{department_id}/documents/{document_id}/chunk")
-def chunk_document(department_id: str, document_id: str):
-    department = departments_collection.find_one({"slug": department_id})
-    if department is None:
-        raise HTTPException(status_code=404, detail="Department not found")
+@router.post("/{document_id}/chunk")
+def chunk_document(document_id: str):
+
 
     doc = get_document_by_id(document_id)
     if doc is None:
         raise HTTPException(status_code=404, detail="Document not found")
 
-    if doc["department_id"] != str(department["_id"]):
-        raise HTTPException(status_code=403, detail="This document does not belong to the given department")
+
 
     try:
         result = process_document_into_chunks(document_id)
@@ -154,18 +143,15 @@ def chunk_document(department_id: str, document_id: str):
         raise HTTPException(status_code=500, detail=f"Chunking failed: {str(e)}")
 
 
-@router.get("/{department_id}/documents/{document_id}/chunks")
-def list_document_chunks(department_id: str, document_id: str):
-    department = departments_collection.find_one({"slug": department_id})
-    if department is None:
-        raise HTTPException(status_code=404, detail="Department not found")
+@router.get("/{document_id}/chunks")
+def list_document_chunks(document_id: str):
+
 
     doc = get_document_by_id(document_id)
     if doc is None:
         raise HTTPException(status_code=404, detail="Document not found")
 
-    if doc["department_id"] != str(department["_id"]):
-        raise HTTPException(status_code=403, detail="This document does not belong to the given department")
+
 
     chunks = get_chunks_by_document(document_id)
 
@@ -185,18 +171,14 @@ def list_document_chunks(department_id: str, document_id: str):
             for chunk in chunks
         ]
     }
-@router.post("/{department_id}/documents/{document_id}/embed")
-def embed_chunks_for_document(department_id: str, document_id: str):
-    department = departments_collection.find_one({"slug": department_id})
-    if department is None:
-        raise HTTPException(status_code=404, detail="Department not found")
+@router.post("/{document_id}/embed")
+def embed_chunks_for_document(document_id: str):
+
 
     doc = get_document_by_id(document_id)
     if doc is None:
         raise HTTPException(status_code=404, detail="Document not found")
 
-    if doc["department_id"] != str(department["_id"]):
-        raise HTTPException(status_code=403, detail="This document does not belong to the given department")
 
     try:
         result = embed_document_chunks(document_id)
@@ -206,30 +188,25 @@ def embed_chunks_for_document(department_id: str, document_id: str):
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Embedding failed: {str(e)}")
-@router.post("/{department_id}/documents/bulk-ingest")
+@router.post("/bulk-ingest")
 def bulk_ingest_documents(
-    department_id: str,
     reprocess_existing: bool = False
 ):
-    department = departments_collection.find_one({"slug": department_id})
-    if department is None:
-        raise HTTPException(status_code=404, detail="Department not found")
+
 
     try:
-        result = bulk_ingest_department_folder(
-            department_slug=department_id,
+        result = bulk_ingest_folder(
+
             reprocess_existing=reprocess_existing
         )
         return result
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Bulk ingestion failed: {str(e)}")
-@router.get("/{department_id}/documents/status")
-def get_department_document_status(department_id: str):
-    department = departments_collection.find_one({"slug": department_id})
-    if department is None:
-        raise HTTPException(status_code=404, detail="Department not found")
+@router.get("/status")
+def get_document_status():
 
-    docs = get_documents_by_department(str(department["_id"]))
+
+    docs = get_all_documents()
 
     results = []
     for doc in docs:
@@ -239,7 +216,6 @@ def get_department_document_status(department_id: str):
 
         results.append({
             "document_id": document_id,
-            "department_id": department["slug"],
             "title": doc["title"],
             "doc_type": doc["doc_type"],
             "file_name": doc["file_name"],
@@ -250,25 +226,19 @@ def get_department_document_status(department_id: str):
         })
 
     return {
-        "department_id": department["slug"],
+
         "total_documents": len(results),
         "documents": results
     }
-@router.post("/{department_id}/documents/{document_id}/reprocess")
-def reprocess_document(department_id: str, document_id: str):
-    department = departments_collection.find_one({"slug": department_id})
-    if department is None:
-        raise HTTPException(status_code=404, detail="Department not found")
+@router.post("/{document_id}/reprocess")
+def reprocess_document(document_id: str):
+
 
     doc = get_document_by_id(document_id)
     if doc is None:
         raise HTTPException(status_code=404, detail="Document not found")
 
-    if doc["department_id"] != str(department["_id"]):
-        raise HTTPException(
-            status_code=403,
-            detail="This document does not belong to the given department"
-        )
+
 
     try:
         # 1) delete existing chunks for this document
@@ -286,7 +256,6 @@ def reprocess_document(department_id: str, document_id: str):
 
         return {
             "message": "Document reprocessed successfully",
-            "department_id": department["slug"],
             "document_id": document_id,
             "title": doc["title"],
             "doc_type": doc["doc_type"],

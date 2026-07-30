@@ -4,7 +4,7 @@ TEXT_INDEX_NAME = "chunk_text_index"
 
 
 def retrieve_text_chunks(
-    department_id: str,
+
     question: str,
     top_k: int = 5
 ):
@@ -21,14 +21,7 @@ def retrieve_text_chunks(
                             }
                         }
                     ],
-                    "filter": [
-                        {
-                            "equals": {
-                                "path": "department_id",
-                                "value": department_id
-                            }
-                        }
-                    ]
+                    
                 }
             }
         },
@@ -38,7 +31,7 @@ def retrieve_text_chunks(
         {
             "$project": {
                 "_id": 1,
-                "department_id": 1,
+               
                 "document_id": 1,
                 "title": 1,
                 "doc_type": 1,

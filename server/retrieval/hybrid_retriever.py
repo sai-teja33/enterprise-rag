@@ -45,7 +45,7 @@ def merge_hybrid_results(
 
 
 def retrieve_hybrid_chunks(
-    department_id: str,
+
     question: str,
     top_k: int = settings.RERANK_TOP_K,
     vector_k: int = settings.VECTOR_TOP_K,
@@ -53,13 +53,13 @@ def retrieve_hybrid_chunks(
     rerank_top_k: int = settings.RERANK_TOP_K,
 ):
     vector_chunks = retrieve_similar_chunks(
-        department_id=department_id,
+        
         question=question,
         top_k=vector_k
     )
 
     text_chunks = retrieve_text_chunks(
-        department_id=department_id,
+        
         question=question,
         top_k=text_k
     )
