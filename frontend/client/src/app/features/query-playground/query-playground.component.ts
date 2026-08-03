@@ -5,15 +5,16 @@ import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatDividerModule } from '@angular/material/divider';
+import { MatExpansionModule } from '@angular/material/expansion';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 
 import { QueryApiService } from '../../core/services/query-api.service';
 import { QueryHistoryService } from '../../core/services/query-history.service';
 import { QueryResponse } from '../../core/models/query';
+import { NotificationService } from '../../core/services/notification.service';
 
 import { LoadingStateComponent } from '../../shared/components/loading-state/loading-state.component';
 import { StatusBadgeComponent } from '../../shared/components/status-badge/status-badge.component';
@@ -31,7 +32,7 @@ import { StatusBadgeComponent } from '../../shared/components/status-badge/statu
     MatButtonModule,
     MatIconModule,
     MatDividerModule,
-    MatSnackBarModule,
+    MatExpansionModule,
     LoadingStateComponent,
     StatusBadgeComponent,
   ],
@@ -41,15 +42,13 @@ import { StatusBadgeComponent } from '../../shared/components/status-badge/statu
 export class QueryPlaygroundComponent {
   readonly queryApi = inject(QueryApiService);
   readonly queryHistory = inject(QueryHistoryService);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly notificationService = inject(NotificationService);
 
   question = '';
-
   topK = 5;
-
   isLoading = false;
-
   response: QueryResponse | null = null;
+  showTechnicalDetails = false;
 
   sampleQuestions = [
     'What is the sick leave policy for employees?',
@@ -60,9 +59,7 @@ export class QueryPlaygroundComponent {
 
   askQuestion(): void {
     if (!this.question.trim()) {
-      this.snackBar.open('Please enter a question.', 'Dismiss', {
-        duration: 3000,
-      });
+      this.notificationService.error('Please enter a question.');
       return;
     }
 
@@ -83,15 +80,12 @@ export class QueryPlaygroundComponent {
 
         error: () => {
           this.isLoading = false;
-
-          this.snackBar.open('Unable to query the backend.', 'Dismiss', {
-            duration: 4000,
-          });
+          this.notificationService.error('Unable to query the backend.');
         },
       });
   }
 
-  selectSample(question: string) {
+  selectSample(question: string): void {
     this.question = question;
   }
 
@@ -105,10 +99,6 @@ export class QueryPlaygroundComponent {
 
   get debugInfo() {
     return this.response?.debug_info;
-  }
-
-  get retrievedChunks() {
-    return this.debugInfo?.retrieval?.retrieved_chunks ?? [];
   }
 
   get usedCitations() {
@@ -150,10 +140,6 @@ export class QueryPlaygroundComponent {
     return 'n/a';
   }
 
-  get usedChunks() {
-    return this.usedCitations;
-  }
-
   get answerBadgeVariant() {
     switch (this.response?.answer_mode) {
       case 'not_found':
@@ -165,9 +151,5 @@ export class QueryPlaygroundComponent {
       default:
         return 'answer';
     }
-  }
-
-  get rescueBadgeVariant() {
-    return this.debugInfo?.rescue_used ? 'answer' : 'not-found';
   }
 }

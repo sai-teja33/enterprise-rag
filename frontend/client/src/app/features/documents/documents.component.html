@@ -13,7 +13,7 @@
         (click)="loadStatus()"
       >
         <mat-icon>refresh</mat-icon>
-        <span>Refresh Status</span>
+        <span>Refresh</span>
       </button>
 
       <button
@@ -31,110 +31,23 @@
 
   @if (isLoading) {
     <app-loading-state message="Loading department documents..."></app-loading-state>
-  } @else if (!statusResponse || !statusResponse.documents.length) {
+  } @else if (!statusResponse || !documents.length) {
     <app-empty-state
       title="No documents found"
       description="Upload PDF or DOCX files to build the selected department knowledge base."
     ></app-empty-state>
   } @else {
     <mat-card class="panel-card">
-      <div class="table-wrap">
-        <table mat-table [dataSource]="statusResponse.documents" class="docs-table">
-          <ng-container matColumnDef="title">
-            <th mat-header-cell *matHeaderCellDef>Title</th>
-            <td mat-cell *matCellDef="let doc">
-              {{ doc.title }}
-            </td>
-          </ng-container>
-
-          <ng-container matColumnDef="doc_type">
-            <th mat-header-cell *matHeaderCellDef>Document Type</th>
-            <td mat-cell *matCellDef="let doc">
-              {{ doc.doc_type }}
-            </td>
-          </ng-container>
-
-          <ng-container matColumnDef="file_name">
-            <th mat-header-cell *matHeaderCellDef>File Name</th>
-            <td mat-cell *matCellDef="let doc">
-              {{ doc.file_name }}
-            </td>
-          </ng-container>
-
-          <ng-container matColumnDef="uploaded_at">
-            <th mat-header-cell *matHeaderCellDef>Uploaded</th>
-            <td mat-cell *matCellDef="let doc">
-              {{ doc.uploaded_at | date: 'medium' }}
-            </td>
-          </ng-container>
-
-          <ng-container matColumnDef="total_chunks">
-            <th mat-header-cell *matHeaderCellDef>Chunks</th>
-            <td mat-cell *matCellDef="let doc">
-              {{ doc.total_chunks }}
-            </td>
-          </ng-container>
-
-          <ng-container matColumnDef="embedded_chunks">
-            <th mat-header-cell *matHeaderCellDef>Embedded</th>
-            <td mat-cell *matCellDef="let doc">
-              {{ doc.embedded_chunks }}
-            </td>
-          </ng-container>
-
-          <ng-container matColumnDef="ready">
-            <th mat-header-cell *matHeaderCellDef>Status</th>
-
-            <td mat-cell *matCellDef="let doc">
-              @if (doc.ready_for_query) {
-                <app-status-badge label="Ready" variant="ready"></app-status-badge>
-              } @else if (doc.total_chunks > 0) {
-                <app-status-badge label="Pending" variant="pending"></app-status-badge>
-              } @else {
-                <app-status-badge label="Not Processed" variant="not-processed"></app-status-badge>
-              }
-            </td>
-          </ng-container>
-
-          <ng-container matColumnDef="actions">
-            <th mat-header-cell *matHeaderCellDef>Actions</th>
-
-            <td mat-cell *matCellDef="let doc">
-              <div class="action-buttons">
-                <button
-                  mat-stroked-button
-                  class="table-action table-action--secondary"
-                  (click)="openPreview(doc)"
-                >
-                  <mat-icon>visibility</mat-icon>
-                  Preview
-                </button>
-
-                <button
-                  mat-stroked-button
-                  class="table-action table-action--secondary"
-                  (click)="openChunks(doc)"
-                >
-                  <mat-icon>view_list</mat-icon>
-                  Chunks
-                </button>
-
-                <button
-                  mat-flat-button
-                  color="primary"
-                  class="table-action table-action--primary"
-                  (click)="reprocess(doc)"
-                >
-                  <mat-icon>sync</mat-icon>
-                  Reprocess
-                </button>
-              </div>
-            </td>
-          </ng-container>
-
-          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-          <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
-        </table>
+      <div class="ag-theme-quartz" style="height: 100%; width: 100%">
+        <ag-grid-angular
+          class="documents-grid"
+          [rowData]="documents"
+          [columnDefs]="columnDefs"
+          [defaultColDef]="defaultColDef"
+          [gridOptions]="gridOptions"
+          [animateRows]="true"
+          [theme]="theme"
+        ></ag-grid-angular>
       </div>
     </mat-card>
   }

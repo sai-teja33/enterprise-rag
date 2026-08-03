@@ -1,0 +1,219 @@
+[
+  {
+    "id": "leave_01",
+    "question": "How many days of Casual Leave am I entitled to per year, and how does it accrue?",
+    "expected_answer": "12 days of Casual Leave per year, accruing at 1 day per month. Up to 6 unused days can be carried forward to the next year. It is not encashable.",
+    "source_file": "Employee_Leave_Policy.pdf",
+    "category": "factual"
+  },
+  {
+    "id": "leave_02",
+    "question": "Do I need a medical certificate for a 2-day sick leave?",
+    "expected_answer": "No. Sick leave up to 2 consecutive days can be taken without a medical certificate. Beyond 2 consecutive days, a medical certificate is required, submitted within 5 working days of resuming work, or the leave is marked Leave Without Pay.",
+    "source_file": "Employee_Leave_Policy.pdf",
+    "category": "factual"
+  },
+  {
+    "id": "leave_03",
+    "question": "How many weeks of maternity leave are employees entitled to, and does it change for a third child?",
+    "expected_answer": "26 weeks of maternity leave for employees with fewer than two surviving children. For employees with two or more surviving children, entitlement is reduced to 12 weeks. Up to 8 weeks may be taken before the expected delivery date.",
+    "source_file": "Employee_Leave_Policy.pdf",
+    "category": "factual"
+  },
+  {
+    "id": "leave_04",
+    "question": "When does Privilege Leave become available to a new employee, and does probation affect it?",
+    "expected_answer": "Privilege Leave accrues from day one but can only be used after 90 days of continuous service. Employees on probation are eligible for all leave types except Privilege Leave, which activates automatically upon confirmation.",
+    "source_file": "Employee_Leave_Policy.pdf",
+    "category": "multi_hop"
+  },
+  {
+    "id": "leave_05",
+    "question": "If I combine Casual Leave and Sick Leave for a long absence, is there a limit before I need extra approval?",
+    "expected_answer": "Yes, any combined absence exceeding 5 consecutive days requires department head approval, regardless of which leave types are combined.",
+    "source_file": "Employee_Leave_Policy.pdf",
+    "category": "factual"
+  },
+  {
+    "id": "leave_06",
+    "question": "What happens to unused Privilege Leave when an employee leaves the company?",
+    "expected_answer": "Unutilized Privilege Leave, up to the accumulated cap of 45 days, is encashed at final settlement based on the employee's last drawn basic salary. Casual and Sick Leave balances lapse and are not encashable.",
+    "source_file": "Employee_Leave_Policy.pdf",
+    "category": "factual"
+  },
+  {
+    "id": "onboard_01",
+    "question": "How long is the standard probation period for new employees, and can it be extended?",
+    "expected_answer": "6 months from date of joining, extendable by up to 3 months at the manager's discretion if the performance evaluation is inconclusive.",
+    "source_file": "Onboarding_and_Offboarding_Policy.pdf",
+    "category": "factual"
+  },
+  {
+    "id": "onboard_02",
+    "question": "What is the notice period for a Manager grade (L4-L5) employee who resigns, and can it be bought out?",
+    "expected_answer": "60 days notice period. It can be bought out for up to 30 days, subject to mutual agreement and Finance approval.",
+    "source_file": "Onboarding_and_Offboarding_Policy.pdf",
+    "category": "factual"
+  },
+  {
+    "id": "onboard_03",
+    "question": "How soon after the last working day is full and final settlement processed, and when is the relieving letter issued?",
+    "expected_answer": "Full and final settlement is processed within 45 days of the last working day, subject to completion of all clearances. The relieving letter and experience certificate are issued within 7 working days of settlement completion.",
+    "source_file": "Onboarding_and_Offboarding_Policy.pdf",
+    "category": "multi_hop"
+  },
+  {
+    "id": "onboard_04",
+    "question": "Can an employee who was terminated for disciplinary reasons be rehired?",
+    "expected_answer": "Employees separated for disciplinary reasons are marked 'Not Eligible for Rehire' in the HRMS and require CHRO approval to override that.",
+    "source_file": "Onboarding_and_Offboarding_Policy.pdf",
+    "category": "factual"
+  },
+  {
+    "id": "onboard_05",
+    "question": "Is the standard resignation notice table used for involuntary separations like layoffs?",
+    "expected_answer": "No. Involuntary separations (performance-based termination, redundancy, disciplinary termination) follow the same clearance checklist, but notice period and severance are governed by the Termination and Exit Policy (HR-POL-013) and local labor law, not the standard resignation notice table.",
+    "source_file": "Onboarding_and_Offboarding_Policy.pdf",
+    "category": "factual"
+  },
+  {
+    "id": "conduct_01",
+    "question": "What is the maximum value of a gift an employee can accept from a vendor without prior disclosure?",
+    "expected_answer": "INR 5,000 per calendar year without prior disclosure to the Ethics Office. Cash or cash-equivalent gifts of any value must be declined regardless.",
+    "source_file": "Code_of_Conduct_Policy.pdf",
+    "category": "factual"
+  },
+  {
+    "id": "conduct_02",
+    "question": "How long does the Internal Complaints Committee have to complete a POSH inquiry?",
+    "expected_answer": "The ICC must complete the inquiry within 90 days of a complaint being filed.",
+    "source_file": "Code_of_Conduct_Policy.pdf",
+    "category": "factual"
+  },
+  {
+    "id": "conduct_03",
+    "question": "How long does the confidentiality obligation last after an employee leaves, for trade secrets versus general confidential business information?",
+    "expected_answer": "The confidentiality obligation survives indefinitely for trade secrets, and for 2 years for general confidential business information.",
+    "source_file": "Code_of_Conduct_Policy.pdf",
+    "category": "factual"
+  },
+  {
+    "id": "conduct_04",
+    "question": "What disciplinary action typically applies to a substantiated sexual harassment case?",
+    "expected_answer": "Substantiated sexual harassment is classified as a Severe violation, with typical action being termination and potential legal referral.",
+    "source_file": "Code_of_Conduct_Policy.pdf",
+    "category": "factual"
+  },
+  {
+    "id": "conduct_05",
+    "question": "If an employee accepts a cash gift card worth INR 2,000 from a vendor, is that acceptable since it's under the INR 5,000 limit?",
+    "expected_answer": "No. Cash or cash-equivalent gifts such as vouchers or gift cards must be declined regardless of value; the INR 5,000 disclosure threshold applies only to non-cash gifts, favors, or entertainment.",
+    "source_file": "Code_of_Conduct_Policy.pdf",
+    "category": "tricky"
+  },
+  {
+    "id": "perf_01",
+    "question": "How many SMART goals do employees set with their manager, and during what period?",
+    "expected_answer": "Employees and managers jointly set 3-5 SMART goals during the Goal Setting phase, which runs from 1-30 April.",
+    "source_file": "Performance_Management_Policy.pdf",
+    "category": "factual"
+  },
+  {
+    "id": "perf_02",
+    "question": "What performance rating requires a mandatory Performance Improvement Plan?",
+    "expected_answer": "A rating of 'Unsatisfactory' (rating 1), or 'Needs Improvement' (rating 2) for two consecutive cycles, requires a formal Performance Improvement Plan (PIP).",
+    "source_file": "Performance_Management_Policy.pdf",
+    "category": "factual"
+  },
+  {
+    "id": "perf_03",
+    "question": "How long does an employee have to file an appeal against their performance rating?",
+    "expected_answer": "10 working days from when the rating is communicated.",
+    "source_file": "Performance_Management_Policy.pdf",
+    "category": "factual"
+  },
+  {
+    "id": "perf_04",
+    "question": "Is the rating distribution guideline in the performance policy a strict forced ranking within every team?",
+    "expected_answer": "No. The percentages are guidelines used to detect calibration bias across teams, not a mandatory forced-ranking quota applied within every individual team.",
+    "source_file": "Performance_Management_Policy.pdf",
+    "category": "tricky"
+  },
+  {
+    "id": "perf_05",
+    "question": "How many respondents are required for 360-degree feedback to be considered valid in calibration?",
+    "expected_answer": "A minimum of 4 respondents is required.",
+    "source_file": "Performance_Management_Policy.pdf",
+    "category": "factual"
+  },
+  {
+    "id": "travel_01",
+    "question": "What class of domestic air travel is a Senior Manager entitled to?",
+    "expected_answer": "Economy class domestically, upgradeable to Business if the flight is more than 4 hours.",
+    "source_file": "Travel_and_Expense_Policy.pdf",
+    "category": "factual"
+  },
+  {
+    "id": "travel_02",
+    "question": "What is the per diem for domestic travel, and does it change if breakfast is included in the hotel?",
+    "expected_answer": "INR 1,500 per day for domestic travel, reduced to INR 750 per day if hotel breakfast is included.",
+    "source_file": "Travel_and_Expense_Policy.pdf",
+    "category": "factual"
+  },
+  {
+    "id": "travel_03",
+    "question": "Within how many days of trip completion must an employee file an expense claim, and what happens if they're late?",
+    "expected_answer": "Expense claims must be filed within 15 calendar days of trip completion. Claims submitted more than 45 days after trip completion require additional approval from the Finance Controller and may be rejected at Finance's discretion.",
+    "source_file": "Travel_and_Expense_Policy.pdf",
+    "category": "multi_hop"
+  },
+  {
+    "id": "travel_04",
+    "question": "Are alcoholic beverages ever reimbursable under the travel policy?",
+    "expected_answer": "Generally no, except at pre-approved client entertainment events.",
+    "source_file": "Travel_and_Expense_Policy.pdf",
+    "category": "tricky"
+  },
+  {
+    "id": "travel_05",
+    "question": "What is the mileage reimbursement rate for using a personal four-wheeler for business travel?",
+    "expected_answer": "INR 14 per km for four-wheelers (INR 8 per km for two-wheelers), with prior manager approval, based on the shortest reasonable route.",
+    "source_file": "Travel_and_Expense_Policy.pdf",
+    "category": "factual"
+  },
+  {
+    "id": "travel_06",
+    "question": "Who is eligible for a corporate credit card?",
+    "expected_answer": "Employees at Manager grade and above who travel more than 4 times per year are eligible for a corporate credit card.",
+    "source_file": "Travel_and_Expense_Policy.pdf",
+    "category": "factual"
+  },
+  {
+    "id": "adv_01",
+    "question": "What is the company's policy on remote work and work-from-home days per week?",
+    "expected_answer": "Not covered by any of the uploaded policies; the system should abstain rather than fabricate an answer.",
+    "source_file": null,
+    "category": "adversarial"
+  },
+  {
+    "id": "adv_02",
+    "question": "What is the annual salary hike percentage for employees rated Outstanding?",
+    "expected_answer": "Not covered; the Performance Management Policy links rating to compensation but does not state specific hike percentages. The system should abstain rather than guess a number.",
+    "source_file": null,
+    "category": "adversarial"
+  },
+  {
+    "id": "adv_03",
+    "question": "How many sick days do employees get in the United States office?",
+    "expected_answer": "Not covered; the Leave Policy applies only to India operations and does not specify US entitlements. The system should abstain rather than assume the India figures apply.",
+    "source_file": null,
+    "category": "adversarial"
+  },
+  {
+    "id": "adv_04",
+    "question": "What is the company's parental leave policy for adoptive parents?",
+    "expected_answer": "Not covered; the Leave Policy only defines maternity and paternity leave, not adoption leave. The system should abstain rather than infer an answer.",
+    "source_file": null,
+    "category": "adversarial"
+  }
+]

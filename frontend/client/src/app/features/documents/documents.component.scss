@@ -1,19 +1,19 @@
 .documents-page {
   display: grid;
-  gap: 20px;
+  gap: 12px;
 }
 
 .page-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 16px;
-  padding: 4px 0;
+  gap: 12px;
+  padding: 2px 0;
 }
 
 .page-header h1 {
   margin: 0;
-  font-size: 1.7rem;
+  font-size: 1.5rem;
   color: #0f172a;
   font-weight: 700;
   letter-spacing: -0.02em;
@@ -22,96 +22,44 @@
 .page-header p {
   margin: 4px 0 0;
   color: #64748b;
-  font-size: 0.95rem;
-}
-
-.page-actions,
-.action-buttons {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
+  font-size: 0.94rem;
 }
 
 .page-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
   align-items: center;
   justify-content: flex-end;
 }
 
-.page-action,
-.table-action {
-  min-height: 42px;
+.page-action {
+  min-height: 40px;
   border-radius: 10px;
   padding: 0 16px;
   font-weight: 600;
-  letter-spacing: 0.01em;
-  transition:
-    transform 180ms ease,
-    box-shadow 180ms ease,
-    background-color 180ms ease,
-    border-color 180ms ease,
-    color 180ms ease;
 }
 
-.page-action mat-icon,
-.table-action mat-icon {
+.page-action mat-icon {
   margin-right: 8px;
   font-size: 18px;
   width: 18px;
   height: 18px;
 }
 
-.page-action:hover,
-.page-action:focus-visible,
-.table-action:hover,
-.table-action:focus-visible {
-  transform: translateY(-1px);
-  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.12);
-}
-
-.page-action:active,
-.table-action:active {
-  transform: translateY(0);
-  box-shadow: 0 4px 10px rgba(15, 23, 42, 0.12);
-}
-
-.page-action--secondary,
-.table-action--secondary {
-  color: #0f172a;
-  border-color: rgba(15, 23, 42, 0.14);
-  background: #ffffff;
-}
-
-.page-action--secondary:hover,
-.page-action--secondary:focus-visible,
-.table-action--secondary:hover,
-.table-action--secondary:focus-visible {
-  background: #f8fafc;
-  border-color: rgba(37, 99, 235, 0.24);
-  color: #1d4ed8;
-}
-
-.page-action--primary,
-.table-action--primary {
-  box-shadow: 0 8px 20px rgba(37, 99, 235, 0.18);
-}
-
-.page-action--primary:hover,
-.page-action--primary:focus-visible,
-.table-action--primary:hover,
-.table-action--primary:focus-visible {
-  box-shadow: 0 10px 24px rgba(37, 99, 235, 0.24);
-}
-
 .panel-card {
   border-radius: 16px;
-  padding: 16px;
+  padding: 12px;
+  overflow: hidden;
 }
 
-.table-wrap {
-  overflow: auto;
+.ag-theme-quartz {
+  --ag-row-height: 48px;
+  --ag-header-height: 44px;
+  --ag-border-color: #e2e8f0;
 }
 
-.docs-table {
+.documents-grid {
   width: 100%;
 }
 
@@ -128,16 +76,6 @@
   }
 
   .page-action {
-    width: 100%;
-    justify-content: center;
-  }
-
-  .action-buttons {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .table-action {
     width: 100%;
     justify-content: center;
   }

@@ -7,7 +7,7 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
-import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 import { TenantSelectorComponent } from '../../shared/components/department-selector/tenant-selector.component';
 import { TenantStateService } from '../../core/services/department-state.service';
@@ -36,7 +36,6 @@ export class AppShellComponent {
   readonly isSidenavOpen = signal(true);
 
   private readonly router = inject(Router);
-  readonly snackBar = inject(MatSnackBar);
 
   readonly navItems = [
     {
